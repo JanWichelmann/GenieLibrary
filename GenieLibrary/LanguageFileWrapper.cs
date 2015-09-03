@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Forms;
 
 namespace GenieLibrary
 {
@@ -36,12 +37,14 @@ namespace GenieLibrary
 		/// <param name="files">Die zu ladenden Dateien.</param>
 		public LanguageFileWrapper(params string[] files)
 		{
-			// Dateien laden
+			// Dateien laden im "LOAD_LIBRARY_AS_DATAFILE"-Modus laden
 			_filePointers = new List<IntPtr>();
 			foreach(string currF in files)
-			{
-				_filePointers.Add(LoadLibrary(currF));
-			}
+				_filePointers.Add(LoadLibraryEx(currF, IntPtr.Zero, 2));
+
+			// Wenn eine Datei nicht geladen werden konnte, Fehlermeldung anzeigen
+			if(_filePointers.Exists(fp => fp == IntPtr.Zero))
+				MessageBox.Show("DLL-Error #" + Marshal.GetLastWin32Error());
 		}
 
 		/// <summary>
@@ -75,7 +78,7 @@ namespace GenieLibrary
 		#region Importierte Funktionen
 
 		[DllImport("kernel32.dll", SetLastError = true)]
-		public static extern IntPtr LoadLibrary(string path);
+		public static extern IntPtr LoadLibraryEx(string path, IntPtr zero, int flags);
 
 		[DllImport("kernel32.dll", SetLastError = true)]
 		public static extern bool FreeLibrary(IntPtr handle);
