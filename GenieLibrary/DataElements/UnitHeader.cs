@@ -1,4 +1,5 @@
 ﻿using IORAMHelper;
+using System;
 using System.Collections.Generic;
 
 namespace GenieLibrary.DataElements
@@ -42,34 +43,38 @@ namespace GenieLibrary.DataElements
 
 		#region Strukturen
 
-		public class UnitCommand : IGenieDataElement
+		public class UnitCommand : IGenieDataElement,ICloneable
 		{
 			#region Variablen
 
-			private short One;
-			private short ID;
-			private byte Unknown1;
-			private short Type;
-			private short ClassID;
-			private short UnitID;
-			private short Unknown2;
-			private short ResourceIn;
-			private short ResourceProductivityMultiplier;
-			private short ResourceOut;
-			private short Resource;
-			private float WorkRateMultiplier;
-			private float ExecutionRadius;
-			private float ExtraRange;
-			private byte Unknown4;
-			private float Unknown5;
-			private byte SelectionEnabler;
-			private byte Unknown7;
-			private short Unknown8;
-			private short Unknown9;
-			private byte SelectionMode;
-			private byte Unknown11;
-			private byte Unknown12;
-			private List<short> Graphics;
+			public short One;
+			public short ID;
+			public byte Unknown1;
+			public short Type;
+			public short ClassID;
+			public short UnitID;
+			public short TerrainID;
+			public short ResourceIn;
+			public short ResourceProductivityMultiplier;
+			public short ResourceOut;
+			public short Resource;
+			public float WorkRateMultiplier;
+			public float ExecutionRadius;
+			public float ExtraRange;
+			public byte Unknown4;
+			public float Unknown5;
+			public byte SelectionEnabler;
+			public byte Unknown7;
+			public short PlunderSource;
+			public short Unknown9;
+			public byte SelectionMode;
+			public byte RightClickMode;
+			public byte Unknown12;
+
+			/// <summary>
+			/// Länge: 6.
+			/// </summary>
+			public List<short> Graphics;
 
 			#endregion Variablen
 
@@ -83,7 +88,7 @@ namespace GenieLibrary.DataElements
 				Type = buffer.ReadShort();
 				ClassID = buffer.ReadShort();
 				UnitID = buffer.ReadShort();
-				Unknown2 = buffer.ReadShort();
+				TerrainID = buffer.ReadShort();
 				ResourceIn = buffer.ReadShort();
 				ResourceProductivityMultiplier = buffer.ReadShort();
 				ResourceOut = buffer.ReadShort();
@@ -95,10 +100,10 @@ namespace GenieLibrary.DataElements
 				Unknown5 = buffer.ReadFloat();
 				SelectionEnabler = buffer.ReadByte();
 				Unknown7 = buffer.ReadByte();
-				Unknown8 = buffer.ReadShort();
+				PlunderSource = buffer.ReadShort();
 				Unknown9 = buffer.ReadShort();
 				SelectionMode = buffer.ReadByte();
-				Unknown11 = buffer.ReadByte();
+				RightClickMode = buffer.ReadByte();
 				Unknown12 = buffer.ReadByte();
 
 				Graphics = new List<short>(6);
@@ -114,7 +119,7 @@ namespace GenieLibrary.DataElements
 				buffer.WriteShort(Type);
 				buffer.WriteShort(ClassID);
 				buffer.WriteShort(UnitID);
-				buffer.WriteShort(Unknown2);
+				buffer.WriteShort(TerrainID);
 				buffer.WriteShort(ResourceIn);
 				buffer.WriteShort(ResourceProductivityMultiplier);
 				buffer.WriteShort(ResourceOut);
@@ -126,14 +131,30 @@ namespace GenieLibrary.DataElements
 				buffer.WriteFloat(Unknown5);
 				buffer.WriteByte(SelectionEnabler);
 				buffer.WriteByte(Unknown7);
-				buffer.WriteShort(Unknown8);
+				buffer.WriteShort(PlunderSource);
 				buffer.WriteShort(Unknown9);
 				buffer.WriteByte(SelectionMode);
-				buffer.WriteByte(Unknown11);
+				buffer.WriteByte(RightClickMode);
 				buffer.WriteByte(Unknown12);
 
 				AssertListLength(Graphics, 6);
 				Graphics.ForEach(e => buffer.WriteShort(e));
+			}
+			
+			/// <summary>
+			 /// Gibt eine tiefe Kopie dieses Objekts zurück.
+			 /// </summary>
+			 /// <returns></returns>
+			public object Clone()
+			{
+				// Erstmal alle Wert-Typen kopieren
+				UnitCommand clone = (UnitCommand)this.MemberwiseClone();
+
+				// Referenztypen kopieren
+				clone.Graphics = new List<short>(Graphics);
+
+				// Fertig
+				return clone;
 			}
 
 			#endregion Funktionen
