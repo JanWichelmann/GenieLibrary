@@ -27,6 +27,11 @@ namespace GenieLibrary
 		/// <remarks></remarks>
 		private RAMBuffer _buffer = null;
 
+		/// <summary>
+		/// Gibt an, ob die neue TechTree-Datenstruktur benutzt wird.
+		/// </summary>
+		private bool _newTechTree = false;
+
 		#region Datenelemente
 
 		/// <summary>
@@ -95,12 +100,17 @@ namespace GenieLibrary
 		public List<DataElements.Research> Researches;
 
 		/// <summary>
-		/// Der Technologie-Baum.
+		/// Der Technologie-Baum (neues Format).
+		/// </summary>
+		public DataElements.TechTreeNew TechTreeNew;
+
+		/// <summary>
+		/// Der Technologie-Baum (altes Format).
 		/// </summary>
 		public DataElements.TechTree TechTree;
 
 		/// <summary>
-		/// Unbekannte Daten bezüglich des Technologie-Baums.
+		/// Unbekannte Daten bezüglich des Technologie-Baums (altes Format).
 		/// </summary>
 		public List<int> TechTreeUnknown;
 
@@ -156,7 +166,9 @@ namespace GenieLibrary
 		{
 			// Dateiversion lesen
 			string version = _buffer.ReadString(8);
-			if(version != "VER 5.7\0")
+			if(version == "VER 5.T\0")
+				_newTechTree = true;
+			else if(version != "VER 5.7\0")
 				throw new InvalidDataException("Falsches Dateiformat oder falsche Dateiversion.");
 
 			// Anzahlen lesen
@@ -250,8 +262,11 @@ namespace GenieLibrary
 			for(int i = 0; i < 7; ++i)
 				TechTreeUnknown.Add(_buffer.ReadInteger());
 
-			// Technologiebaum lesen
-			TechTree = new DataElements.TechTree().ReadDataInline(_buffer);
+			// Je nach TechTree-Typ lesen
+			if(_newTechTree)
+				TechTreeNew = new DataElements.TechTreeNew().ReadDataInline(_buffer);
+			else
+				TechTree = new DataElements.TechTree().ReadDataInline(_buffer);
 
 			// Puffer leeren, um Speicher zu sparen
 			_buffer.Clear();
@@ -272,7 +287,7 @@ namespace GenieLibrary
 		/// Schreibt die enthaltenen Daten in das interne RAMBuffer-Objekt.
 		/// </summary>
 		/// <remarks></remarks>
-		public void WriteData()
+		private void WriteData()
 		{
 			// Puffer initialisieren
 			if(_buffer == null)
@@ -281,7 +296,10 @@ namespace GenieLibrary
 				_buffer.Clear();
 
 			// Dateiversion schreiben
-			_buffer.WriteString("VER 5.7", 8);
+			if(_newTechTree)
+				_buffer.WriteString("VER 5.T", 8);
+			else
+				_buffer.WriteString("VER 5.7", 8);
 
 			// Anzahlen schreiben
 			AssertTrue(TerrainRestrictionPointers1.Count == TerrainRestrictionPointers2.Count);
@@ -351,7 +369,10 @@ namespace GenieLibrary
 			TechTreeUnknown.ForEach(e => _buffer.WriteInteger(e));
 
 			// Technologiebaum schreiben
-			TechTree.WriteData(_buffer);
+			if(_newTechTree)
+				TechTreeNew.WriteData(_buffer);
+			else
+				TechTree.WriteData(_buffer);
 
 			// Fertig
 		}
@@ -452,5 +473,19 @@ namespace GenieLibrary
 		}
 
 		#endregion Statische Funktionen
+
+		#region Eigenschaften
+
+		/// <summary>
+		/// Gibt an, ob beim Lese das neue TechTree-Format erkannt wurde bzw. ob das neue TechTree-Format geschrieben werden soll.
+		/// Das neue Format kann auch dann geschrieben werden, wenn vorher das alte gelesen wurde (und andersherum), sofern alle zugehörigen Objekte entsprechend initialisiert sind.
+		/// </summary>
+		public bool NewTechTree
+		{
+			get { return _newTechTree; }
+			set { _newTechTree = value; }
+		}
+
+		#endregion
 	}
 }

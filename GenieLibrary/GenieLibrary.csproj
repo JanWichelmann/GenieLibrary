@@ -67,6 +67,7 @@
     <Compile Include="DataElements\Sound.cs" />
     <Compile Include="DataElements\Techage.cs" />
     <Compile Include="DataElements\TechTree.cs" />
+    <Compile Include="DataElements\TechTreeNew.cs" />
     <Compile Include="DataElements\TerrainRestriction.cs" />
     <Compile Include="DataElements\UnitHeader.cs" />
     <Compile Include="DataElements\UnitTypes\Bird.cs" />
