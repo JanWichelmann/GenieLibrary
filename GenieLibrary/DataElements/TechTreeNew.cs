@@ -12,7 +12,7 @@ namespace GenieLibrary.DataElements
 		/// Die Stammelemente. Die Reihenfolge entspricht der Renderreihenfolge.
 		/// </summary>
 		public List<TechTreeElement> ParentElements;
-		
+
 		#endregion Variablen
 
 		#region Funktionen
@@ -71,6 +71,11 @@ namespace GenieLibrary.DataElements
 			/// </summary>
 			public List<TechTreeElement> Children;
 
+			/// <summary>
+			/// Die Elemente, die für das aktuelle Voraussetzung sind. Nur also Folge von IDs und Typen gespeichert, da nicht zwingend im Baum enthalten.
+			/// </summary>
+			public List<Tuple<ItemType, short>> RequiredElements;
+
 			#endregion Variablen
 
 			#region Funktionen
@@ -94,6 +99,12 @@ namespace GenieLibrary.DataElements
 				Children = new List<TechTreeElement>();
 				for(int i = 0; i < childrenCount; ++i)
 					Children.Add(new TechTreeElement().ReadDataInline(buffer));
+
+				// Benötigte Elemente lesen
+				short requireCount = buffer.ReadShort();
+				RequiredElements = new List<Tuple<ItemType, short>>();
+				for(int i = 0; i < requireCount; ++i)
+					RequiredElements.Add(new Tuple<ItemType, short>((ItemType)buffer.ReadByte(), buffer.ReadShort()));
 			}
 
 			public override void WriteData(RAMBuffer buffer)
@@ -111,6 +122,10 @@ namespace GenieLibrary.DataElements
 				// Kindelemente schreiben
 				buffer.WriteShort((short)Children.Count);
 				Children.ForEach(c => c.WriteData(buffer));
+
+				// Benötigte Elemente schreiben
+				buffer.WriteShort((short)RequiredElements.Count);
+				RequiredElements.ForEach(r => { buffer.WriteByte((byte)r.Item1); buffer.WriteShort(r.Item2); });
 			}
 
 			#endregion Funktionen
