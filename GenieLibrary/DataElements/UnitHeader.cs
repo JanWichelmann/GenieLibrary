@@ -43,7 +43,7 @@ namespace GenieLibrary.DataElements
 
 		#region Strukturen
 
-		public class UnitCommand : IGenieDataElement,ICloneable
+		public class UnitCommand : IGenieDataElement, ICloneable
 		{
 			#region Variablen
 
@@ -140,11 +140,11 @@ namespace GenieLibrary.DataElements
 				AssertListLength(Graphics, 6);
 				Graphics.ForEach(e => buffer.WriteShort(e));
 			}
-			
+
 			/// <summary>
-			 /// Gibt eine tiefe Kopie dieses Objekts zurück.
-			 /// </summary>
-			 /// <returns></returns>
+			/// Gibt eine tiefe Kopie dieses Objekts zurück.
+			/// </summary>
+			/// <returns></returns>
 			public object Clone()
 			{
 				// Erstmal alle Wert-Typen kopieren

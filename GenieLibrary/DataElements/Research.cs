@@ -1,10 +1,10 @@
 ﻿using IORAMHelper;
-using System.Collections.Generic;
 using System;
+using System.Collections.Generic;
 
 namespace GenieLibrary.DataElements
 {
-	public class Research : IGenieDataElement,ICloneable
+	public class Research : IGenieDataElement, ICloneable
 	{
 		#region Variablen
 
