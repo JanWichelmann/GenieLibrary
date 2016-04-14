@@ -262,11 +262,10 @@ namespace GenieLibrary
 			for(int i = 0; i < 7; ++i)
 				TechTreeUnknown.Add(_buffer.ReadInteger());
 
-			// Je nach TechTree-Typ lesen
+			// TechTree lesen
+			TechTree = new DataElements.TechTree().ReadDataInline(_buffer);
 			if(_newTechTree)
 				TechTreeNew = new DataElements.TechTreeNew().ReadDataInline(_buffer);
-			else
-				TechTree = new DataElements.TechTree().ReadDataInline(_buffer);
 
 			// Puffer leeren, um Speicher zu sparen
 			_buffer.Clear();
@@ -369,10 +368,9 @@ namespace GenieLibrary
 			TechTreeUnknown.ForEach(e => _buffer.WriteInteger(e));
 
 			// Technologiebaum schreiben
+			TechTree.WriteData(_buffer);
 			if(_newTechTree)
 				TechTreeNew.WriteData(_buffer);
-			else
-				TechTree.WriteData(_buffer);
 
 			// Fertig
 		}
