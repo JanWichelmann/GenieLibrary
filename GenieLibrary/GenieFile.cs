@@ -484,6 +484,6 @@ namespace GenieLibrary
 			set { _newTechTree = value; }
 		}
 
-		#endregion
+		#endregion Eigenschaften
 	}
 }

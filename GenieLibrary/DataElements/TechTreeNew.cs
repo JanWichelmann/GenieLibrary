@@ -158,7 +158,7 @@ namespace GenieLibrary.DataElements
 				HideIfDisabled = 1
 			}
 
-			#endregion
+			#endregion Enumerationen
 		}
 
 		#endregion Strukturen
