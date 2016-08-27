@@ -13,6 +13,16 @@ namespace GenieLibrary
 	/// <remarks></remarks>
 	public class GenieFile : IGenieDataElement
 	{
+		#region Konstanten
+
+		/// <summary>
+		/// Versions-Marker für den neuen TechTree. Wird nach dem regulären TechTree in die DAT eingefügt, um Kompatibilität zu nicht patchten Spielversionen zu erhalten.
+		/// Muss immer Länge 4 haben.
+		/// </summary>
+		private const string NEW_TECH_TREE_VERSION_MARKER = "NTT1";
+
+		#endregion
+
 		#region Variablen
 
 		/// <summary>
@@ -166,9 +176,7 @@ namespace GenieLibrary
 		{
 			// Dateiversion lesen
 			string version = _buffer.ReadString(8);
-			if(version == "VER 5.T\0")
-				_newTechTree = true;
-			else if(version != "VER 5.7\0")
+			if(version != "VER 5.7\0")
 				throw new InvalidDataException("Falsches Dateiformat oder falsche Dateiversion.");
 
 			// Anzahlen lesen
@@ -264,6 +272,15 @@ namespace GenieLibrary
 
 			// TechTree lesen
 			TechTree = new DataElements.TechTree().ReadDataInline(_buffer);
+
+			// Auf neuen TechTree prüfen
+			if(_buffer.Length - _buffer.Position > 4)
+			{
+				// Marker einlesen
+				string newTechTreeMarker = _buffer.ReadString(4);
+				if(newTechTreeMarker == NEW_TECH_TREE_VERSION_MARKER)
+					_newTechTree = true;
+			}
 			if(_newTechTree)
 				TechTreeNew = new DataElements.TechTreeNew().ReadDataInline(_buffer);
 
@@ -295,10 +312,7 @@ namespace GenieLibrary
 				_buffer.Clear();
 
 			// Dateiversion schreiben
-			if(_newTechTree)
-				_buffer.WriteString("VER 5.T", 8);
-			else
-				_buffer.WriteString("VER 5.7", 8);
+			_buffer.WriteString("VER 5.7", 8);
 
 			// Anzahlen schreiben
 			AssertTrue(TerrainRestrictionPointers1.Count == TerrainRestrictionPointers2.Count);
@@ -370,7 +384,11 @@ namespace GenieLibrary
 			// Technologiebaum schreiben
 			TechTree.WriteData(_buffer);
 			if(_newTechTree)
+			{
+				// Marker und neuen TechTree schreiben
+				_buffer.WriteString(NEW_TECH_TREE_VERSION_MARKER);
 				TechTreeNew.WriteData(_buffer);
+			}
 
 			// Fertig
 		}
