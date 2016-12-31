@@ -29,7 +29,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 		public short UnknownSound;
 		public short ConstructionSound;
 		public byte GarrisonType;
-		public float GarrisonHealRate;
+		public float GarrisonHealRateFactor;
 		public float Unknown35;
 		public short PileUnit;
 
@@ -64,7 +64,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 			UnknownSound = buffer.ReadShort();
 			ConstructionSound = buffer.ReadShort();
 			GarrisonType = buffer.ReadByte();
-			GarrisonHealRate = buffer.ReadFloat();
+			GarrisonHealRateFactor = buffer.ReadFloat();
 			Unknown35 = buffer.ReadFloat();
 			PileUnit = buffer.ReadShort();
 
@@ -94,7 +94,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 			buffer.WriteShort(UnknownSound);
 			buffer.WriteShort(ConstructionSound);
 			buffer.WriteByte(GarrisonType);
-			buffer.WriteFloat(GarrisonHealRate);
+			buffer.WriteFloat(GarrisonHealRateFactor);
 			buffer.WriteFloat(Unknown35);
 			buffer.WriteShort(PileUnit);
 

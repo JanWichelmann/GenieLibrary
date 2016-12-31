@@ -89,7 +89,7 @@ namespace GenieLibrary
 		{
 			public T Type;
 			public A Amount;
-			public E Enabled;
+			public E Paid;
 		}
 
 		#endregion Strukturen

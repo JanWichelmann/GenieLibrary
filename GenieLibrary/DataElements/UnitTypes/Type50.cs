@@ -8,37 +8,37 @@ namespace GenieLibrary.DataElements.UnitTypes
 	{
 		#region Variablen
 
-		public short DefaultArmour;
+		public short DefaultArmor;
 
 		/// <summary>
 		/// Format: Klasse =&gt; Wert.
 		/// </summary>
-		public Dictionary<short, short> Attacks;
+		public Dictionary<ushort, ushort> Attacks;
 
 		/// <summary>
 		/// Format: Klasse =&gt; Wert.
 		/// </summary>
-		public Dictionary<short, short> Armours;
+		public Dictionary<ushort, ushort> Armors;
 
 		public short TerrainRestrictionForDamageMultiplying;
 		public float MaxRange;
 		public float BlastRadius;
 		public float ReloadTime;
 		public short ProjectileUnitID;
-		public short AccuracyPercent;
+		public short ProjectileAccuracyPercent;
 		public byte TowerMode;
-		public short FrameDelay;
+		public short ProjectileFrameDelay;
 
 		/// <summary>
 		/// Länge: 3.
 		/// </summary>
-		public List<float> GraphicDisplacement;
+		public List<float> ProjectileGraphicDisplacement;
 
 		public byte BlastLevel;
 		public float MinRange;
-		public float AccuracyErrorRadius;
+		public float ProjectileDispersion;
 		public short AttackGraphic;
-		public short DisplayedMeleeArmour;
+		public short DisplayedMeleeArmor;
 		public short DisplayedAttack;
 		public float DisplayedRange;
 		public float DisplayedReloadTime;
@@ -49,36 +49,36 @@ namespace GenieLibrary.DataElements.UnitTypes
 
 		public override void ReadData(RAMBuffer buffer)
 		{
-			DefaultArmour = buffer.ReadShort();
+			DefaultArmor = buffer.ReadShort();
 
 			ushort attackCount = buffer.ReadUShort();
-			Attacks = new Dictionary<short, short>(attackCount);
+			Attacks = new Dictionary<ushort, ushort>(attackCount);
 			for(int i = 0; i < attackCount; ++i)
-				Attacks[buffer.ReadShort()] = buffer.ReadShort();
+				Attacks[buffer.ReadUShort()] = buffer.ReadUShort();
 
 			ushort armourCount = buffer.ReadUShort();
-			Armours = new Dictionary<short, short>(armourCount);
+			Armors = new Dictionary<ushort, ushort>(armourCount);
 			for(int i = 0; i < armourCount; ++i)
-				Armours[buffer.ReadShort()] = buffer.ReadShort();
+				Armors[buffer.ReadUShort()] = buffer.ReadUShort();
 
 			TerrainRestrictionForDamageMultiplying = buffer.ReadShort();
 			MaxRange = buffer.ReadFloat();
 			BlastRadius = buffer.ReadFloat();
 			ReloadTime = buffer.ReadFloat();
 			ProjectileUnitID = buffer.ReadShort();
-			AccuracyPercent = buffer.ReadShort();
+			ProjectileAccuracyPercent = buffer.ReadShort();
 			TowerMode = buffer.ReadByte();
-			FrameDelay = buffer.ReadShort();
+			ProjectileFrameDelay = buffer.ReadShort();
 
-			GraphicDisplacement = new List<float>(3);
+			ProjectileGraphicDisplacement = new List<float>(3);
 			for(int i = 0; i < 3; ++i)
-				GraphicDisplacement.Add(buffer.ReadFloat());
+				ProjectileGraphicDisplacement.Add(buffer.ReadFloat());
 
 			BlastLevel = buffer.ReadByte();
 			MinRange = buffer.ReadFloat();
-			AccuracyErrorRadius = buffer.ReadFloat();
+			ProjectileDispersion = buffer.ReadFloat();
 			AttackGraphic = buffer.ReadShort();
-			DisplayedMeleeArmour = buffer.ReadShort();
+			DisplayedMeleeArmor = buffer.ReadShort();
 			DisplayedAttack = buffer.ReadShort();
 			DisplayedRange = buffer.ReadFloat();
 			DisplayedReloadTime = buffer.ReadFloat();
@@ -86,20 +86,20 @@ namespace GenieLibrary.DataElements.UnitTypes
 
 		public override void WriteData(RAMBuffer buffer)
 		{
-			buffer.WriteShort(DefaultArmour);
+			buffer.WriteShort(DefaultArmor);
 
 			buffer.WriteUShort((ushort)Attacks.Count);
-			foreach(KeyValuePair<short, short> currA in Attacks)
+			foreach(KeyValuePair<ushort, ushort> currA in Attacks)
 			{
-				buffer.WriteShort(currA.Key);
-				buffer.WriteShort(currA.Value);
+				buffer.WriteUShort(currA.Key);
+				buffer.WriteUShort(currA.Value);
 			}
 
-			buffer.WriteUShort((ushort)Armours.Count);
-			foreach(KeyValuePair<short, short> currA in Armours)
+			buffer.WriteUShort((ushort)Armors.Count);
+			foreach(KeyValuePair<ushort, ushort> currA in Armors)
 			{
-				buffer.WriteShort(currA.Key);
-				buffer.WriteShort(currA.Value);
+				buffer.WriteUShort(currA.Key);
+				buffer.WriteUShort(currA.Value);
 			}
 
 			buffer.WriteShort(TerrainRestrictionForDamageMultiplying);
@@ -107,18 +107,18 @@ namespace GenieLibrary.DataElements.UnitTypes
 			buffer.WriteFloat(BlastRadius);
 			buffer.WriteFloat(ReloadTime);
 			buffer.WriteShort(ProjectileUnitID);
-			buffer.WriteShort(AccuracyPercent);
+			buffer.WriteShort(ProjectileAccuracyPercent);
 			buffer.WriteByte(TowerMode);
-			buffer.WriteShort(FrameDelay);
+			buffer.WriteShort(ProjectileFrameDelay);
 
-			AssertListLength(GraphicDisplacement, 3);
-			GraphicDisplacement.ForEach(e => buffer.WriteFloat(e));
+			AssertListLength(ProjectileGraphicDisplacement, 3);
+			ProjectileGraphicDisplacement.ForEach(e => buffer.WriteFloat(e));
 
 			buffer.WriteByte(BlastLevel);
 			buffer.WriteFloat(MinRange);
-			buffer.WriteFloat(AccuracyErrorRadius);
+			buffer.WriteFloat(ProjectileDispersion);
 			buffer.WriteShort(AttackGraphic);
-			buffer.WriteShort(DisplayedMeleeArmour);
+			buffer.WriteShort(DisplayedMeleeArmor);
 			buffer.WriteShort(DisplayedAttack);
 			buffer.WriteFloat(DisplayedRange);
 			buffer.WriteFloat(DisplayedReloadTime);
@@ -134,9 +134,9 @@ namespace GenieLibrary.DataElements.UnitTypes
 			Type50 clone = (Type50)this.MemberwiseClone();
 
 			// Referenztypen kopieren
-			clone.Attacks = new Dictionary<short, short>(Attacks);
-			clone.Armours = new Dictionary<short, short>(Armours);
-			clone.GraphicDisplacement = new List<float>(GraphicDisplacement);
+			clone.Attacks = new Dictionary<ushort, ushort>(Attacks);
+			clone.Armors = new Dictionary<ushort, ushort>(Armors);
+			clone.ProjectileGraphicDisplacement = new List<float>(ProjectileGraphicDisplacement);
 
 			// Fertig
 			return clone;

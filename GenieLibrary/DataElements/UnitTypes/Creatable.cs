@@ -21,18 +21,15 @@ namespace GenieLibrary.DataElements.UnitTypes
 		public byte Unknown28;
 		public byte HeroMode;
 		public int GarrisonGraphic;
-		public float DuplicatedMissilesMin;
-		public byte DuplicatedMissilesMax;
-
-		/// <summary>
-		/// Länge: 3.
-		/// </summary>
-		public List<float> MissileSpawningArea;
-
+		public float ProjectileCount;
+		public byte ProjectileCountOnFullGarrison;
+		public float ProjectileSpawningAreaWidth;
+		public float ProjectileSpawningAreaHeight;
+		public float ProjectileSpawningAreaRandomness;
 		public int AlternativeProjectileUnit;
 		public int ChargingGraphic;
 		public byte ChargingMode;
-		public short DisplayedPierceArmour;
+		public short DisplayedPierceArmor;
 
 		#endregion Variablen
 
@@ -42,7 +39,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 		{
 			ResourceCosts = new List<ResourceTuple<short, short, short>>(3);
 			for(int i = 0; i < 3; ++i)
-				ResourceCosts.Add(new ResourceTuple<short, short, short>() { Type = buffer.ReadShort(), Amount = buffer.ReadShort(), Enabled = buffer.ReadShort() });
+				ResourceCosts.Add(new ResourceTuple<short, short, short>() { Type = buffer.ReadShort(), Amount = buffer.ReadShort(), Paid = buffer.ReadShort() });
 
 			TrainTime = buffer.ReadShort();
 			TrainLocationID = buffer.ReadShort();
@@ -52,17 +49,15 @@ namespace GenieLibrary.DataElements.UnitTypes
 			Unknown28 = buffer.ReadByte();
 			HeroMode = buffer.ReadByte();
 			GarrisonGraphic = buffer.ReadInteger();
-			DuplicatedMissilesMin = buffer.ReadFloat();
-			DuplicatedMissilesMax = buffer.ReadByte();
-
-			MissileSpawningArea = new List<float>(3);
-			for(int i = 0; i < 3; ++i)
-				MissileSpawningArea.Add(buffer.ReadFloat());
-
+			ProjectileCount = buffer.ReadFloat();
+			ProjectileCountOnFullGarrison = buffer.ReadByte();
+			ProjectileSpawningAreaWidth = buffer.ReadFloat();
+			ProjectileSpawningAreaHeight = buffer.ReadFloat();
+			ProjectileSpawningAreaRandomness = buffer.ReadFloat();
 			AlternativeProjectileUnit = buffer.ReadInteger();
 			ChargingGraphic = buffer.ReadInteger();
 			ChargingMode = buffer.ReadByte();
-			DisplayedPierceArmour = buffer.ReadShort();
+			DisplayedPierceArmor = buffer.ReadShort();
 		}
 
 		public override void WriteData(RAMBuffer buffer)
@@ -72,7 +67,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 			{
 				buffer.WriteShort(e.Type);
 				buffer.WriteShort(e.Amount);
-				buffer.WriteShort(e.Enabled);
+				buffer.WriteShort(e.Paid);
 			});
 
 			buffer.WriteShort(TrainTime);
@@ -83,16 +78,15 @@ namespace GenieLibrary.DataElements.UnitTypes
 			buffer.WriteByte(Unknown28);
 			buffer.WriteByte(HeroMode);
 			buffer.WriteInteger(GarrisonGraphic);
-			buffer.WriteFloat(DuplicatedMissilesMin);
-			buffer.WriteByte(DuplicatedMissilesMax);
-
-			AssertListLength(MissileSpawningArea, 3);
-			MissileSpawningArea.ForEach(e => buffer.WriteFloat(e));
-
+			buffer.WriteFloat(ProjectileCount);
+			buffer.WriteByte(ProjectileCountOnFullGarrison);
+			buffer.WriteFloat(ProjectileSpawningAreaWidth);
+			buffer.WriteFloat(ProjectileSpawningAreaHeight);
+			buffer.WriteFloat(ProjectileSpawningAreaRandomness);
 			buffer.WriteInteger(AlternativeProjectileUnit);
 			buffer.WriteInteger(ChargingGraphic);
 			buffer.WriteByte(ChargingMode);
-			buffer.WriteShort(DisplayedPierceArmour);
+			buffer.WriteShort(DisplayedPierceArmor);
 		}
 
 		/// <summary>
@@ -106,7 +100,6 @@ namespace GenieLibrary.DataElements.UnitTypes
 
 			// Referenztypen kopieren
 			clone.ResourceCosts = new List<ResourceTuple<short, short, short>>(ResourceCosts);
-			clone.MissileSpawningArea = new List<float>(MissileSpawningArea);
 
 			// Fertig
 			return clone;

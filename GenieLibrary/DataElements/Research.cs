@@ -46,7 +46,7 @@ namespace GenieLibrary.DataElements
 
 			ResourceCosts = new List<ResourceTuple<short, short, byte>>(3);
 			for(int i = 0; i < 3; ++i)
-				ResourceCosts.Add(new ResourceTuple<short, short, byte>() { Type = buffer.ReadShort(), Amount = buffer.ReadShort(), Enabled = buffer.ReadByte() });
+				ResourceCosts.Add(new ResourceTuple<short, short, byte>() { Type = buffer.ReadShort(), Amount = buffer.ReadShort(), Paid = buffer.ReadByte() });
 
 			RequiredTechCount = buffer.ReadShort();
 			Civ = buffer.ReadShort();
@@ -77,7 +77,7 @@ namespace GenieLibrary.DataElements
 			{
 				buffer.WriteShort(e.Type);
 				buffer.WriteShort(e.Amount);
-				buffer.WriteByte(e.Enabled);
+				buffer.WriteByte(e.Paid);
 			});
 
 			buffer.WriteShort(RequiredTechCount);

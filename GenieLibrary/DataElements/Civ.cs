@@ -238,7 +238,7 @@ namespace GenieLibrary.DataElements
 
 				ResourceStorages = new List<ResourceTuple<short, float, byte>>(3);
 				for(int i = 0; i < 3; ++i)
-					ResourceStorages.Add(new ResourceTuple<short, float, byte>() { Type = buffer.ReadShort(), Amount = buffer.ReadFloat(), Enabled = buffer.ReadByte() });
+					ResourceStorages.Add(new ResourceTuple<short, float, byte>() { Type = buffer.ReadShort(), Amount = buffer.ReadFloat(), Paid = buffer.ReadByte() });
 
 				int damageGraphicCount = buffer.ReadByte();
 				DamageGraphics = new List<DamageGraphic>();
@@ -341,7 +341,7 @@ namespace GenieLibrary.DataElements
 				{
 					buffer.WriteShort(e.Type);
 					buffer.WriteFloat(e.Amount);
-					buffer.WriteByte(e.Enabled);
+					buffer.WriteByte(e.Paid);
 				});
 
 				buffer.WriteByte((byte)DamageGraphics.Count);
