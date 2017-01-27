@@ -228,7 +228,8 @@ namespace GenieLibrary
 					Graphics.Add(p, new DataElements.Graphic().ReadDataInline(_buffer));
 
 			// Ungenutzte Daten lesen
-			int unusedCount = 36368 + terrainCount * 436;
+			// Diese Formel ist völlig beliebig und funktionierte bisher bei allen 41- und 42-Terrain-DATs. Vielleicht doch irgendwann noch durch eine richtige Implementierung ersetzen...
+			int unusedCount = 43420 + terrainCount * 264; //36368 + terrainCount * 436;
 			Unused1 = new List<byte>(unusedCount);
 			for(int i = 0; i < unusedCount; ++i)
 				Unused1.Add(_buffer.ReadByte());
@@ -350,7 +351,7 @@ namespace GenieLibrary
 				e.Value.WriteData(_buffer);
 
 			// Ungenutzte Daten schreiben
-			AssertListLength(Unused1, 36368 + DataElements.TerrainRestriction.TerrainCount * 436);
+			//AssertListLength(Unused1, 36368 + DataElements.TerrainRestriction.TerrainCount * 436);
 			Unused1.ForEach(e => _buffer.WriteByte(e));
 
 			// Anzahl schreiben
