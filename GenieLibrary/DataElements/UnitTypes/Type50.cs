@@ -47,7 +47,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public Type50 ReadData(RAMBuffer buffer)
 		{
 			DefaultArmor = buffer.ReadShort();
 
@@ -82,9 +82,11 @@ namespace GenieLibrary.DataElements.UnitTypes
 			DisplayedAttack = buffer.ReadShort();
 			DisplayedRange = buffer.ReadFloat();
 			DisplayedReloadTime = buffer.ReadFloat();
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			buffer.WriteShort(DefaultArmor);
 

@@ -4,9 +4,9 @@ using System;
 namespace GenieLibrary
 {
 	/// <summary>
-	/// Definiert Eigenschaften eines DAT-Datei-Datenelements. Enthält u.a. Unterstützung für selbstständiges Lesen und Schreiben.
+	/// Definiert Eigenschaften eines DAT-Datei-Datenelements.
 	/// </summary>
-	public abstract class IGenieDataElement
+	public class IGenieDataElement
 	{
 		#region Hilfsfunktionen
 
@@ -15,7 +15,7 @@ namespace GenieLibrary
 		/// </summary>
 		/// <param name="list">Die zu überprüfende Liste.</param>
 		/// <param name="length">Die Soll-Länge der Liste.</param>
-		protected void AssertListLength(System.Collections.ICollection list, int length)
+		public static void AssertListLength(System.Collections.ICollection list, int length)
 		{
 			// Länge abgleichen
 			if(list.Count != length)
@@ -29,7 +29,7 @@ namespace GenieLibrary
 		/// Stellt sicher, dass der übergebene Wert true ist, sonst wird eine Exception ausgelöst.
 		/// </summary>
 		/// <param name="value">Der zu überprüfende Wahrheitswert.</param>
-		protected void AssertTrue(bool value)
+		public static void AssertTrue(bool value)
 		{
 			// Länge abgleichen
 			if(!value)
@@ -40,42 +40,6 @@ namespace GenieLibrary
 		}
 
 		#endregion Hilfsfunktionen
-
-		#region Abstrakte Funktionen
-
-		/// <summary>
-		/// Liest Daten ab der gegebenen Position im Puffer.
-		/// </summary>
-		/// <param name="buffer">Der Puffer, aus dem die Daten gelesen werden sollen.</param>
-		public abstract void ReadData(RAMBuffer buffer);
-
-		/// <summary>
-		/// Schreibt die enthaltenen Daten an die gegebene Position im Puffer.
-		/// </summary>
-		/// <param name="buffer">Der Puffer, in den die Daten geschrieben werden sollen.</param>
-		public abstract void WriteData(RAMBuffer buffer);
-
-		#endregion Abstrakte Funktionen
-
-		#region Hilfsfunktionen für übersichtlicheren Aufrufer-Code
-
-		/// <summary>
-		/// Liest Daten ab der gegebenen Position im Puffer und gibt dieses Objekt dann zurück.
-		///
-		/// TODO: Sehr hässlich...siehe http://stackoverflow.com/questions/7798256/can-a-base-class-method-return-this-even-in-a-derived-class
-		/// </summary>
-		/// <param name="buffer">Der Puffer, aus dem die Daten gelesen werden sollen.</param>
-		/// <returns></returns>
-		public dynamic ReadDataInline(RAMBuffer buffer)
-		{
-			// Daten lesen
-			ReadData(buffer);
-
-			// Objekt zurückgeben
-			return this;
-		}
-
-		#endregion Hilfsfunktionen für übersichtlicheren Aufrufer-Code
 
 		#region Strukturen
 

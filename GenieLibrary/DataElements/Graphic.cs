@@ -53,7 +53,7 @@ namespace GenieLibrary.DataElements
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public Graphic ReadData(RAMBuffer buffer)
 		{
 			Name1 = buffer.ReadString(21);
 			Name2 = buffer.ReadString(13);
@@ -86,17 +86,19 @@ namespace GenieLibrary.DataElements
 
 			Deltas = new List<GraphicDelta>(deltaCount);
 			for(int i = 0; i < deltaCount; ++i)
-				Deltas.Add(new GraphicDelta().ReadDataInline(buffer));
+				Deltas.Add(new GraphicDelta().ReadData(buffer));
 
 			if(AttackSoundUsed != 0)
 			{
 				AttackSounds = new List<GraphicAttackSound>(AngleCount);
 				for(int i = 0; i < AngleCount; ++i)
-					AttackSounds.Add(new GraphicAttackSound().ReadDataInline(buffer));
+					AttackSounds.Add(new GraphicAttackSound().ReadData(buffer));
 			}
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			buffer.WriteString(Name1, 21);
 			buffer.WriteString(Name2, 13);
@@ -189,7 +191,7 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public GraphicAttackSound ReadData(RAMBuffer buffer)
 			{
 				SoundDelay1 = buffer.ReadShort();
 				SoundID1 = buffer.ReadShort();
@@ -197,9 +199,11 @@ namespace GenieLibrary.DataElements
 				SoundID2 = buffer.ReadShort();
 				SoundDelay3 = buffer.ReadShort();
 				SoundID3 = buffer.ReadShort();
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				buffer.WriteShort(SoundDelay1);
 				buffer.WriteShort(SoundID1);
@@ -239,7 +243,7 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public GraphicDelta ReadData(RAMBuffer buffer)
 			{
 				GraphicID = buffer.ReadShort();
 				Unknown1 = buffer.ReadShort();
@@ -249,9 +253,11 @@ namespace GenieLibrary.DataElements
 				DirectionY = buffer.ReadShort();
 				Unknown4 = buffer.ReadShort();
 				Unknown5 = buffer.ReadShort();
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				buffer.WriteShort(GraphicID);
 				buffer.WriteShort(Unknown1);

@@ -18,7 +18,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public Projectile ReadData(RAMBuffer buffer)
 		{
 			StretchMode = buffer.ReadByte();
 			CompensationMode = buffer.ReadByte();
@@ -26,9 +26,11 @@ namespace GenieLibrary.DataElements.UnitTypes
 			PenetrationMode = buffer.ReadByte();
 			Unknown24 = buffer.ReadByte();
 			ProjectileArc = buffer.ReadFloat();
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			buffer.WriteByte(StretchMode);
 			buffer.WriteByte(CompensationMode);

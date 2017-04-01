@@ -26,7 +26,7 @@ namespace GenieLibrary.DataElements
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public TerrainRestriction ReadData(RAMBuffer buffer)
 		{
 			TerrainAccessibleFlags = new List<float>(TerrainCount);
 			for(int i = 0; i < TerrainCount; ++i)
@@ -34,10 +34,12 @@ namespace GenieLibrary.DataElements
 
 			TerrainPassGraphics = new List<TerrainPassGraphic>(TerrainCount);
 			for(int i = 0; i < TerrainCount; ++i)
-				TerrainPassGraphics.Add(new TerrainPassGraphic().ReadDataInline(buffer));
+				TerrainPassGraphics.Add(new TerrainPassGraphic().ReadData(buffer));
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			AssertListLength(TerrainAccessibleFlags, TerrainCount);
 			TerrainAccessibleFlags.ForEach(e => buffer.WriteFloat(e));
@@ -78,15 +80,17 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public TerrainPassGraphic ReadData(RAMBuffer buffer)
 			{
 				Buildable = buffer.ReadInteger();
 				GraphicID1 = buffer.ReadInteger();
 				GraphicID2 = buffer.ReadInteger();
 				ReplicationAmount = buffer.ReadInteger();
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				buffer.WriteInteger(Buildable);
 				buffer.WriteInteger(GraphicID1);

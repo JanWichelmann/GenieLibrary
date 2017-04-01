@@ -42,7 +42,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public Building ReadData(RAMBuffer buffer)
 		{
 			ConstructionGraphicID = buffer.ReadShort();
 			SnowGraphicID = buffer.ReadShort();
@@ -57,7 +57,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 
 			Annexes = new List<BuildingAnnex>(4);
 			for(int i = 0; i < 4; ++i)
-				Annexes.Add(new BuildingAnnex().ReadDataInline(buffer));
+				Annexes.Add(new BuildingAnnex().ReadData(buffer));
 
 			HeadUnit = buffer.ReadShort();
 			TransformUnit = buffer.ReadShort();
@@ -71,9 +71,11 @@ namespace GenieLibrary.DataElements.UnitTypes
 			LootingTable = new List<byte>(6);
 			for(int i = 0; i < 6; ++i)
 				LootingTable.Add(buffer.ReadByte());
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			buffer.WriteShort(ConstructionGraphicID);
 			buffer.WriteShort(SnowGraphicID);
@@ -136,14 +138,16 @@ namespace GenieLibrary.DataElements.UnitTypes
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public BuildingAnnex ReadData(RAMBuffer buffer)
 			{
 				UnitID = buffer.ReadShort();
 				MisplacementX = buffer.ReadFloat();
 				MisplacementY = buffer.ReadFloat();
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				buffer.WriteShort(UnitID);
 				buffer.WriteFloat(MisplacementX);

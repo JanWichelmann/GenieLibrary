@@ -17,7 +17,7 @@ namespace GenieLibrary.DataElements
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public TechTree ReadData(RAMBuffer buffer)
 		{
 			byte ageCount = buffer.ReadByte();
 			byte buildingCount = buffer.ReadByte();
@@ -27,22 +27,24 @@ namespace GenieLibrary.DataElements
 
 			TechTreeAges = new List<TechTreeAge>(ageCount);
 			for(int i = 0; i < ageCount; ++i)
-				TechTreeAges.Add(new TechTreeAge().ReadDataInline(buffer));
+				TechTreeAges.Add(new TechTreeAge().ReadData(buffer));
 
 			BuildingConnections = new List<BuildingConnection>(buildingCount);
 			for(int i = 0; i < buildingCount; ++i)
-				BuildingConnections.Add(new BuildingConnection().ReadDataInline(buffer));
+				BuildingConnections.Add(new BuildingConnection().ReadData(buffer));
 
 			UnitConnections = new List<UnitConnection>(unitCount);
 			for(int i = 0; i < unitCount; ++i)
-				UnitConnections.Add(new UnitConnection().ReadDataInline(buffer));
+				UnitConnections.Add(new UnitConnection().ReadData(buffer));
 
 			ResearchConnections = new List<ResearchConnection>(researchCount);
 			for(int i = 0; i < researchCount; ++i)
-				ResearchConnections.Add(new ResearchConnection().ReadDataInline(buffer));
+				ResearchConnections.Add(new ResearchConnection().ReadData(buffer));
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			buffer.WriteByte((byte)TechTreeAges.Count);
 			buffer.WriteByte((byte)BuildingConnections.Count);
@@ -80,7 +82,7 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public Common ReadData(RAMBuffer buffer)
 			{
 				SlotsUsed = buffer.ReadInteger();
 
@@ -91,9 +93,11 @@ namespace GenieLibrary.DataElements
 				Mode = new List<int>(10);
 				for(int i = 0; i < 10; ++i)
 					Mode.Add(buffer.ReadInteger());
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				buffer.WriteInteger(SlotsUsed);
 
@@ -136,7 +140,7 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public TechTreeAge ReadData(RAMBuffer buffer)
 			{
 				ID = buffer.ReadInteger();
 				Unknown2 = buffer.ReadByte();
@@ -156,7 +160,7 @@ namespace GenieLibrary.DataElements
 				for(int i = 0; i < researchCount; ++i)
 					Researches.Add(buffer.ReadInteger());
 
-				Common = new Common().ReadDataInline(buffer);
+				Common = new Common().ReadData(buffer);
 				SlotsUsed = buffer.ReadByte();
 
 				Unknown4 = new List<byte>(10);
@@ -169,9 +173,11 @@ namespace GenieLibrary.DataElements
 
 				Unknown6 = buffer.ReadByte();
 				LineMode = buffer.ReadInteger();
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				buffer.WriteInteger(ID);
 				buffer.WriteByte(Unknown2);
@@ -230,7 +236,7 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public BuildingConnection ReadData(RAMBuffer buffer)
 			{
 				ID = buffer.ReadInteger();
 				Unknown1 = buffer.ReadByte();
@@ -250,7 +256,7 @@ namespace GenieLibrary.DataElements
 				for(int i = 0; i < researchCount; ++i)
 					Researches.Add(buffer.ReadInteger());
 
-				Common = new Common().ReadDataInline(buffer);
+				Common = new Common().ReadData(buffer);
 				LocationInAge = buffer.ReadByte();
 
 				UnitsTechsTotal = new List<byte>(5);
@@ -263,9 +269,11 @@ namespace GenieLibrary.DataElements
 
 				LineMode = buffer.ReadInteger();
 				EnablingResearch = buffer.ReadInteger();
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				buffer.WriteInteger(ID);
 				buffer.WriteByte(Unknown1);
@@ -314,13 +322,13 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public UnitConnection ReadData(RAMBuffer buffer)
 			{
 				ID = buffer.ReadInteger();
 				Unknown1 = buffer.ReadByte();
 				UpperBuilding = buffer.ReadInteger();
 
-				Common = new Common().ReadDataInline(buffer);
+				Common = new Common().ReadData(buffer);
 
 				VerticalLine = buffer.ReadInteger();
 
@@ -333,9 +341,11 @@ namespace GenieLibrary.DataElements
 				RequiredResearch = buffer.ReadInteger();
 				LineMode = buffer.ReadInteger();
 				EnablingResearch = buffer.ReadInteger();
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				buffer.WriteInteger(ID);
 				buffer.WriteByte(Unknown1);
@@ -376,7 +386,7 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public ResearchConnection ReadData(RAMBuffer buffer)
 			{
 				ID = buffer.ReadInteger();
 				Unknown1 = buffer.ReadByte();
@@ -397,14 +407,16 @@ namespace GenieLibrary.DataElements
 				for(int i = 0; i < researchCount; ++i)
 					Researches.Add(buffer.ReadInteger());
 
-				Common = new Common().ReadDataInline(buffer);
+				Common = new Common().ReadData(buffer);
 
 				VerticalLine = buffer.ReadInteger();
 				LocationInAge = buffer.ReadInteger();
 				LineMode = buffer.ReadInteger();
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				buffer.WriteInteger(ID);
 				buffer.WriteByte(Unknown1);

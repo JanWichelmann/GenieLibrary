@@ -27,7 +27,7 @@ namespace GenieLibrary.DataElements
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public Civ ReadData(RAMBuffer buffer)
 		{
 			One = buffer.ReadByte();
 			Name = buffer.ReadString(20);
@@ -49,10 +49,12 @@ namespace GenieLibrary.DataElements
 			Units = new SortedList<int, Unit>(unitCount);
 			for(int p = 0; p < UnitPointers.Count; ++p)
 				if(UnitPointers[p] != 0)
-					Units.Add(p, new Unit().ReadDataInline(buffer));
+					Units.Add(p, new Unit().ReadData(buffer));
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			buffer.WriteByte(One);
 			buffer.WriteString(Name, 20);
@@ -169,7 +171,7 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public Unit ReadData(RAMBuffer buffer)
 			{
 				Type = (UnitType)buffer.ReadByte();
 				NameLength1 = buffer.ReadUShort();
@@ -243,7 +245,7 @@ namespace GenieLibrary.DataElements
 				int damageGraphicCount = buffer.ReadByte();
 				DamageGraphics = new List<DamageGraphic>();
 				for(int i = 0; i < damageGraphicCount; ++i)
-					DamageGraphics.Add(new DamageGraphic().ReadDataInline(buffer));
+					DamageGraphics.Add(new DamageGraphic().ReadData(buffer));
 
 				SelectionSound = buffer.ReadShort();
 				DyingSound = buffer.ReadShort();
@@ -256,20 +258,22 @@ namespace GenieLibrary.DataElements
 				if(Type >= UnitType.Flag)
 					Speed = buffer.ReadFloat();
 				if(Type >= UnitType.DeadFish)
-					DeadFish = new UnitTypes.DeadFish().ReadDataInline(buffer);
+					DeadFish = new UnitTypes.DeadFish().ReadData(buffer);
 				if(Type >= UnitType.Bird)
-					Bird = new UnitTypes.Bird().ReadDataInline(buffer);
+					Bird = new UnitTypes.Bird().ReadData(buffer);
 				if(Type >= UnitType.Type50)
-					Type50 = new UnitTypes.Type50().ReadDataInline(buffer);
+					Type50 = new UnitTypes.Type50().ReadData(buffer);
 				if(Type == UnitType.Projectile)
-					Projectile = new UnitTypes.Projectile().ReadDataInline(buffer);
+					Projectile = new UnitTypes.Projectile().ReadData(buffer);
 				if(Type >= UnitType.Creatable)
-					Creatable = new UnitTypes.Creatable().ReadDataInline(buffer);
+					Creatable = new UnitTypes.Creatable().ReadData(buffer);
 				if(Type == UnitType.Building)
-					Building = new UnitTypes.Building().ReadDataInline(buffer);
+					Building = new UnitTypes.Building().ReadData(buffer);
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				buffer.WriteByte((byte)Type);
 				buffer.WriteUShort((ushort)Name1.Length);
@@ -418,15 +422,17 @@ namespace GenieLibrary.DataElements
 
 				#region Funktionen
 
-				public override void ReadData(RAMBuffer buffer)
+				public DamageGraphic ReadData(RAMBuffer buffer)
 				{
 					GraphicID = buffer.ReadShort();
 					DamagePercent = buffer.ReadByte();
 					ApplyMode = buffer.ReadByte();
 					Unknown2 = buffer.ReadByte();
+
+					return this;
 				}
 
-				public override void WriteData(RAMBuffer buffer)
+				public void WriteData(RAMBuffer buffer)
 				{
 					buffer.WriteShort(GraphicID);
 					buffer.WriteByte(DamagePercent);

@@ -21,7 +21,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public Bird ReadData(RAMBuffer buffer)
 		{
 			SheepConversion = buffer.ReadShort();
 			SearchRadius = buffer.ReadFloat();
@@ -32,9 +32,11 @@ namespace GenieLibrary.DataElements.UnitTypes
 			AttackSound = buffer.ReadShort();
 			MoveSound = buffer.ReadShort();
 			AnimalMode = buffer.ReadByte();
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			buffer.WriteShort(SheepConversion);
 			buffer.WriteFloat(SearchRadius);

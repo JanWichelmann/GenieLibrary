@@ -26,7 +26,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public DeadFish ReadData(RAMBuffer buffer)
 		{
 			WalkingGraphic1 = buffer.ReadShort();
 			WalkingGraphic2 = buffer.ReadShort();
@@ -40,9 +40,11 @@ namespace GenieLibrary.DataElements.UnitTypes
 			Unknown16B = new List<int>(5);
 			for(int i = 0; i < 5; ++i)
 				Unknown16B.Add(buffer.ReadInteger());
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			buffer.WriteShort(WalkingGraphic1);
 			buffer.WriteShort(WalkingGraphic2);

@@ -35,7 +35,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public Creatable ReadData(RAMBuffer buffer)
 		{
 			ResourceCosts = new List<ResourceTuple<short, short, short>>(3);
 			for(int i = 0; i < 3; ++i)
@@ -58,9 +58,11 @@ namespace GenieLibrary.DataElements.UnitTypes
 			ChargingGraphic = buffer.ReadInteger();
 			ChargingMode = buffer.ReadByte();
 			DisplayedPierceArmor = buffer.ReadShort();
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			AssertListLength(ResourceCosts, 3);
 			ResourceCosts.ForEach(e =>

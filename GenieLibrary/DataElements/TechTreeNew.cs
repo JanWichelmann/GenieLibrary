@@ -6,8 +6,17 @@ using System.Linq;
 
 namespace GenieLibrary.DataElements
 {
-	public class TechTreeNew : IGenieDataElement
+	public class TechTreeNew
 	{
+		#region Konstanten
+
+		/// <summary>
+		/// Die aktuelle Version des TechTree-Datenformats.
+		/// </summary>
+		private const byte NEW_TECH_TREE_VERSION = 1;
+
+		#endregion
+
 		#region Variablen
 
 		/// <summary>
@@ -24,10 +33,10 @@ namespace GenieLibrary.DataElements
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public TechTreeNew ReadData(RAMBuffer buffer)
 		{
 			// Alles lesen
-			ReadData(buffer, false);
+			return ReadData(buffer, false);
 		}
 
 		/// <summary>
@@ -35,13 +44,20 @@ namespace GenieLibrary.DataElements
 		/// </summary>
 		/// <param name="buffer">Der Datenpuffer.</param>
 		/// <param name="readTreeOnly">Gibt an, ob nur die Baumdaten (und nicht auch das Design) geladen werden sollen.</param>
-		public void ReadData(RAMBuffer buffer, bool readTreeOnly)
+		public TechTreeNew ReadData(RAMBuffer buffer, bool readTreeOnly)
 		{
+			// Versionsbyte lesen
+			byte version = buffer.ReadByte();
+			if(version == (byte)'1')
+				version = 0; // Legacy, TODO in ein paar Monaten entfernen...
+			if(version > NEW_TECH_TREE_VERSION)
+				throw new Exception("This file was created with a newer version of this program. Please consider updating.");
+
 			// Stammelemente lesen
 			short parentCount = buffer.ReadShort();
 			ParentElements = new List<TechTreeElement>();
 			for(int i = 0; i < parentCount; ++i)
-				ParentElements.Add(new TechTreeElement().ReadDataInline(buffer));
+				ParentElements.Add(new TechTreeElement().ReadData(buffer, version));
 
 			// Design lesen
 			if(!readTreeOnly)
@@ -49,11 +65,13 @@ namespace GenieLibrary.DataElements
 				// Nur wenn vorhanden, um Kompatibilität zu älteren Dateien zu erhalten
 				DesignData = new TechTreeDesign();
 				if(buffer.Position < buffer.Length)
-					DesignData.ReadData(buffer);
+					DesignData.ReadData(buffer, version);
 			}
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			// Alles schreiben
 			WriteData(buffer, false);
@@ -66,6 +84,9 @@ namespace GenieLibrary.DataElements
 		/// <param name="writeTreeOnly">Gibt an, ob nur die Baumdaten (und nicht auch das Design) geschrieben werden sollen.</param>
 		public void WriteData(RAMBuffer buffer, bool writeTreeOnly)
 		{
+			// Version schreiben
+			buffer.WriteByte(NEW_TECH_TREE_VERSION);
+
 			// Stammelemente schreiben
 			buffer.WriteShort((short)ParentElements.Count);
 			ParentElements.ForEach(p => p.WriteData(buffer));
@@ -79,7 +100,7 @@ namespace GenieLibrary.DataElements
 
 		#region Strukturen
 
-		public class TechTreeElement : IGenieDataElement
+		public class TechTreeElement
 		{
 			#region Variablen
 
@@ -118,11 +139,16 @@ namespace GenieLibrary.DataElements
 			/// </summary>
 			public List<Tuple<ItemType, short>> RequiredElements;
 
+			/// <summary>
+			/// Der Index des Node-Hintergrunds.
+			/// </summary>
+			public int NodeBackgroundIndex;
+
 			#endregion Variablen
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public TechTreeElement ReadData(RAMBuffer buffer, byte version = NEW_TECH_TREE_VERSION)
 			{
 				// Eigenschaften lesen
 				ElementType = (ItemType)buffer.ReadByte();
@@ -140,16 +166,24 @@ namespace GenieLibrary.DataElements
 				short childrenCount = buffer.ReadShort();
 				Children = new List<TechTreeElement>();
 				for(int i = 0; i < childrenCount; ++i)
-					Children.Add(new TechTreeElement().ReadDataInline(buffer));
+					Children.Add(new TechTreeElement().ReadData(buffer, version));
 
 				// Benötigte Elemente lesen
 				short requireCount = buffer.ReadShort();
 				RequiredElements = new List<Tuple<ItemType, short>>();
 				for(int i = 0; i < requireCount; ++i)
 					RequiredElements.Add(new Tuple<ItemType, short>((ItemType)buffer.ReadByte(), buffer.ReadShort()));
+
+				// Node-Hintergrund lesen
+				if(version >= 1)
+					NodeBackgroundIndex = buffer.ReadInteger();
+				else
+					NodeBackgroundIndex = (int)ElementType;
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				// Eigenschaften schreiben
 				buffer.WriteByte((byte)ElementType);
@@ -168,6 +202,9 @@ namespace GenieLibrary.DataElements
 				// Benötigte Elemente schreiben
 				buffer.WriteShort((short)RequiredElements.Count);
 				RequiredElements.ForEach(r => { buffer.WriteByte((byte)r.Item1); buffer.WriteShort(r.Item2); });
+
+				// Node-Hintergrund schreiben
+				buffer.WriteInteger(NodeBackgroundIndex);
 			}
 
 			#endregion Funktionen
@@ -175,7 +212,7 @@ namespace GenieLibrary.DataElements
 			#region Enumerationen
 
 			/// <summary>
-			/// Die möglichen Elementtypen (entscheidend für die Farbe der gerenderten Kästchen, kann auch den eigentlichen Einheiten-Typen widersprechen).
+			/// Die möglichen Elementtypen.
 			/// </summary>
 			public enum ItemType : byte
 			{
@@ -203,7 +240,7 @@ namespace GenieLibrary.DataElements
 			#endregion Enumerationen
 		}
 
-		public class TechTreeDesign : IGenieDataElement
+		public class TechTreeDesign
 		{
 			#region Variablen
 
@@ -341,12 +378,18 @@ namespace GenieLibrary.DataElements
 
 			#endregion
 
-			#region Sonstige
+			#region Nodes
 
 			/// <summary>
 			/// Der Index der Schriftart der Knotenbeschreibung.
 			/// </summary>
 			public byte NodeFontIndex;
+
+			/// <summary>
+			/// Die Knotenhintergründe.
+			/// Enthält immer mindestens drei Elemente, deren Indizes zu den drei möglichen Elementtypen passen.
+			/// </summary>
+			public List<NodeBackground> NodeBackgrounds;
 
 			#endregion
 
@@ -354,7 +397,7 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public void ReadData(RAMBuffer buffer, byte version = NEW_TECH_TREE_VERSION)
 			{
 				// SLP-Daten
 				NodeSlpFileName = buffer.ReadString(buffer.ReadInteger());
@@ -383,7 +426,7 @@ namespace GenieLibrary.DataElements
 				int count = buffer.ReadInteger();
 				ResolutionData = new Dictionary<int, ResolutionConfiguration>();
 				for(int i = 0; i < count; ++i)
-					ResolutionData.Add(buffer.ReadInteger(), new ResolutionConfiguration().ReadDataInline(buffer));
+					ResolutionData.Add(buffer.ReadInteger(), new ResolutionConfiguration().ReadData(buffer));
 
 				// Popup-Label-Daten
 				PopupLabelDelay = buffer.ReadInteger();
@@ -393,11 +436,24 @@ namespace GenieLibrary.DataElements
 				for(int i = 0; i < 6; ++i)
 					PopupBoxBevelColorIndices.Add(buffer.ReadByte());
 
-				// Sonstige Daten
+				// Node-Daten
 				NodeFontIndex = buffer.ReadByte();
+				NodeBackgrounds = new List<NodeBackground>();
+				if(version >= 1)
+				{
+					int nodeBackgroundCount = buffer.ReadInteger();
+					for(int i = 0; i < nodeBackgroundCount; i++)
+						NodeBackgrounds.Add(new NodeBackground().ReadData(buffer));
+				}
+				else
+				{
+					NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 4, Name = "Research" });
+					NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 2, Name = "Unit" });
+					NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 0, Name = "Building" });
+				}
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				// SLP-Daten
 				buffer.WriteInteger(NodeSlpFileName.Length);
@@ -440,12 +496,15 @@ namespace GenieLibrary.DataElements
 				buffer.WriteInteger(PopupLabelDelay);
 				buffer.WriteInteger(PopupLabelWidth);
 				buffer.WriteInteger(PopupInnerPadding);
-				AssertListLength(PopupBoxBevelColorIndices, 6);
+				IGenieDataElement.AssertListLength(PopupBoxBevelColorIndices, 6);
 				for(int i = 0; i < 6; ++i)
 					buffer.WriteByte(PopupBoxBevelColorIndices[i]);
 
-				// Sonstige Daten
+				// Node-Daten
 				buffer.WriteByte(NodeFontIndex);
+				IGenieDataElement.AssertTrue(NodeBackgrounds.Count >= 3);
+				buffer.WriteInteger(NodeBackgrounds.Count);
+				NodeBackgrounds.ForEach(n => n.WriteData(buffer));
 			}
 
 			/// <summary>
@@ -466,7 +525,7 @@ namespace GenieLibrary.DataElements
 
 			#region Strukturen
 
-			public class ResolutionConfiguration : IGenieDataElement
+			public class ResolutionConfiguration
 			{
 				#region Variablen
 
@@ -526,7 +585,7 @@ namespace GenieLibrary.DataElements
 
 				#region Funktionen
 
-				public override void ReadData(RAMBuffer buffer)
+				public ResolutionConfiguration ReadData(RAMBuffer buffer)
 				{
 					LegendFrameIndex = buffer.ReadInteger();
 					AgeFrameIndex = buffer.ReadInteger();
@@ -549,9 +608,11 @@ namespace GenieLibrary.DataElements
 					VerticalDrawOffsets = new List<int>(count);
 					for(int i = 0; i < count; ++i)
 						VerticalDrawOffsets.Add(buffer.ReadInteger());
+
+					return this;
 				}
 
-				public override void WriteData(RAMBuffer buffer)
+				public void WriteData(RAMBuffer buffer)
 				{
 					buffer.WriteInteger(LegendFrameIndex);
 					buffer.WriteInteger(AgeFrameIndex);
@@ -562,16 +623,52 @@ namespace GenieLibrary.DataElements
 					WriteRectangle(CivSelectionComboBoxRectangle, buffer);
 					WriteRectangle(CivSelectionTitleLabelRectangle, buffer);
 
-					AssertListLength(LegendLabelRectangles, 6);
+					IGenieDataElement.AssertListLength(LegendLabelRectangles, 6);
 					LegendLabelRectangles.ForEach(r => WriteRectangle(r, buffer));
 
-					AssertTrue(AgeLabelRectangles.Count >= 3);
+					IGenieDataElement.AssertTrue(AgeLabelRectangles.Count >= 3);
 					buffer.WriteInteger(AgeLabelRectangles.Count);
 					AgeLabelRectangles.ForEach(r => WriteRectangle(r, buffer));
 
-					AssertTrue(VerticalDrawOffsets.Count >= 3);
+					IGenieDataElement.AssertTrue(VerticalDrawOffsets.Count >= 3);
 					buffer.WriteInteger(VerticalDrawOffsets.Count);
 					VerticalDrawOffsets.ForEach(vdo => buffer.WriteInteger(vdo));
+				}
+
+				#endregion
+			}
+
+			public class NodeBackground
+			{
+				#region Variablen
+
+				/// <summary>
+				/// The display name.
+				/// </summary>
+				public string Name;
+
+				/// <summary>
+				/// The node SLP frame index.
+				/// </summary>
+				public int FrameIndex;
+
+				#endregion
+
+				#region Funktionen
+
+				public NodeBackground ReadData(RAMBuffer buffer)
+				{
+					Name = buffer.ReadString(buffer.ReadInteger());
+					FrameIndex = buffer.ReadInteger();
+
+					return this;
+				}
+
+				public void WriteData(RAMBuffer buffer)
+				{
+					buffer.WriteInteger(Name.Length);
+					buffer.WriteString(Name);
+					buffer.WriteInteger(FrameIndex);
 				}
 
 				#endregion

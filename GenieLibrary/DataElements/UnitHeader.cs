@@ -15,7 +15,7 @@ namespace GenieLibrary.DataElements
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public UnitHeader ReadData(RAMBuffer buffer)
 		{
 			Exists = buffer.ReadByte();
 
@@ -24,11 +24,13 @@ namespace GenieLibrary.DataElements
 				int commandCount = buffer.ReadUShort();
 				Commands = new List<UnitCommand>(commandCount);
 				for(int i = 0; i < commandCount; ++i)
-					Commands.Add(new UnitCommand().ReadDataInline(buffer));
+					Commands.Add(new UnitCommand().ReadData(buffer));
 			}
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			buffer.WriteByte(Exists);
 
@@ -80,7 +82,7 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public UnitCommand ReadData(RAMBuffer buffer)
 			{
 				One = buffer.ReadShort();
 				ID = buffer.ReadShort();
@@ -109,9 +111,11 @@ namespace GenieLibrary.DataElements
 				Graphics = new List<short>(6);
 				for(int i = 0; i < 6; ++i)
 					Graphics.Add(buffer.ReadShort());
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				buffer.WriteShort(One);
 				buffer.WriteShort(ID);

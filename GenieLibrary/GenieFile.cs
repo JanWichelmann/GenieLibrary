@@ -11,16 +11,16 @@ namespace GenieLibrary
 	/// Diese Klasse ist für das Laden, Verwalten und Schreiben einer DAT-Datei zuständig. Diese Datei muss bereits dekomprimiert sein, um diese lesen zu können.
 	/// </summary>
 	/// <remarks></remarks>
-	public class GenieFile : IGenieDataElement
+	public class GenieFile
 	{
 		#region Konstanten
 
 		/// <summary>
-		/// Versions-Marker für den neuen TechTree. Wird nach dem regulären TechTree in die DAT eingefügt, um Kompatibilität zu nicht patchten Spielversionen zu erhalten.
-		/// Muss immer Länge 4 haben.
+		/// Marker für den neuen TechTree. Wird nach dem regulären TechTree in die DAT eingefügt, um Kompatibilität zu nicht gepatchten Spielversionen zu erhalten.
+		/// Muss immer Länge 3 haben.
 		/// </summary>
-		private const string NEW_TECH_TREE_VERSION_MARKER = "NTT1";
-
+		private const string NEW_TECH_TREE_MARKER = "NTT";
+		
 		#endregion
 
 		#region Variablen
@@ -195,7 +195,7 @@ namespace GenieLibrary
 			TerrainRestrictions = new List<DataElements.TerrainRestriction>(terrainRestrictionCount);
 			DataElements.TerrainRestriction.TerrainCount = terrainCount;
 			for(int i = 0; i < terrainRestrictionCount; ++i)
-				TerrainRestrictions.Add(new DataElements.TerrainRestriction().ReadDataInline(_buffer));
+				TerrainRestrictions.Add(new DataElements.TerrainRestriction().ReadData(_buffer));
 
 			// Anzahl lesen
 			ushort playerColorCount = _buffer.ReadUShort();
@@ -203,7 +203,7 @@ namespace GenieLibrary
 			// Spielerfarben lesen
 			PlayerColors = new List<DataElements.PlayerColor>(playerColorCount);
 			for(int i = 0; i < playerColorCount; ++i)
-				PlayerColors.Add(new DataElements.PlayerColor().ReadDataInline(_buffer));
+				PlayerColors.Add(new DataElements.PlayerColor().ReadData(_buffer));
 
 			// Anzahl lesen
 			ushort soundCount = _buffer.ReadUShort();
@@ -211,7 +211,7 @@ namespace GenieLibrary
 			// Sounds lesen
 			Sounds = new List<DataElements.Sound>(soundCount);
 			for(int i = 0; i < soundCount; ++i)
-				Sounds.Add(new DataElements.Sound().ReadDataInline(_buffer));
+				Sounds.Add(new DataElements.Sound().ReadData(_buffer));
 
 			// Anzahl lesen
 			int graphicCount = _buffer.ReadUShort();
@@ -225,7 +225,7 @@ namespace GenieLibrary
 			Graphics = new Dictionary<int, DataElements.Graphic>(graphicCount);
 			for(int p = 0; p < GraphicPointers.Count; ++p)
 				if(GraphicPointers[p] != 0)
-					Graphics.Add(p, new DataElements.Graphic().ReadDataInline(_buffer));
+					Graphics.Add(p, new DataElements.Graphic().ReadData(_buffer));
 
 			// Ungenutzte Daten lesen
 			// Diese Formel ist völlig beliebig und funktionierte bisher bei allen 41- und 42-Terrain-DATs. Vielleicht doch irgendwann noch durch eine richtige Implementierung ersetzen...
@@ -240,7 +240,7 @@ namespace GenieLibrary
 			// Technologie-Effekte lesen
 			Techages = new List<DataElements.Techage>(techageCount);
 			for(int i = 0; i < techageCount; ++i)
-				Techages.Add(new DataElements.Techage().ReadDataInline(_buffer));
+				Techages.Add(new DataElements.Techage().ReadData(_buffer));
 
 			// Anzahl lesen
 			int unitCount = _buffer.ReadInteger();
@@ -248,7 +248,7 @@ namespace GenieLibrary
 			// Einheiten-Header lesen
 			UnitHeaders = new List<DataElements.UnitHeader>(unitCount);
 			for(int i = 0; i < unitCount; ++i)
-				UnitHeaders.Add(new DataElements.UnitHeader().ReadDataInline(_buffer));
+				UnitHeaders.Add(new DataElements.UnitHeader().ReadData(_buffer));
 
 			// Anzahl lesen
 			int civCount = _buffer.ReadUShort();
@@ -256,7 +256,7 @@ namespace GenieLibrary
 			// Kulturen lesen
 			Civs = new List<DataElements.Civ>(civCount);
 			for(int i = 0; i < civCount; ++i)
-				Civs.Add(new DataElements.Civ().ReadDataInline(_buffer));
+				Civs.Add(new DataElements.Civ().ReadData(_buffer));
 
 			// Anzahl lesen
 			int researchCount = _buffer.ReadUShort();
@@ -264,7 +264,7 @@ namespace GenieLibrary
 			// Technologien lesen
 			Researches = new List<DataElements.Research>(researchCount);
 			for(int i = 0; i < researchCount; ++i)
-				Researches.Add(new DataElements.Research().ReadDataInline(_buffer));
+				Researches.Add(new DataElements.Research().ReadData(_buffer));
 
 			// Unbekannte Technologiebaum-Daten lesen
 			TechTreeUnknown = new List<int>(7);
@@ -272,18 +272,18 @@ namespace GenieLibrary
 				TechTreeUnknown.Add(_buffer.ReadInteger());
 
 			// TechTree lesen
-			TechTree = new DataElements.TechTree().ReadDataInline(_buffer);
+			TechTree = new DataElements.TechTree().ReadData(_buffer);
 
 			// Auf neuen TechTree prüfen
 			if(_buffer.Length - _buffer.Position > 4)
 			{
 				// Marker einlesen
-				string newTechTreeMarker = _buffer.ReadString(4);
-				if(newTechTreeMarker == NEW_TECH_TREE_VERSION_MARKER)
+				string newTechTreeMarker = _buffer.ReadString(3);
+				if(newTechTreeMarker == NEW_TECH_TREE_MARKER)
 					_newTechTree = true;
 			}
 			if(_newTechTree)
-				TechTreeNew = new DataElements.TechTreeNew().ReadDataInline(_buffer);
+				TechTreeNew = new DataElements.TechTreeNew().ReadData(_buffer);
 
 			// Puffer leeren, um Speicher zu sparen
 			_buffer.Clear();
@@ -293,7 +293,7 @@ namespace GenieLibrary
 		/// Geerbt. Liest Daten ab der gegebenen Position im Puffer.
 		/// </summary>
 		/// <param name="buffer">Der Puffer, aus dem die Daten gelesen werden sollen.</param>
-		public override void ReadData(RAMBuffer buffer)
+		public void ReadData(RAMBuffer buffer)
 		{
 			// Puffer als internen Puffer speichern und Daten laden
 			_buffer = buffer;
@@ -316,7 +316,7 @@ namespace GenieLibrary
 			_buffer.WriteString("VER 5.7", 8);
 
 			// Anzahlen schreiben
-			AssertTrue(TerrainRestrictionPointers1.Count == TerrainRestrictionPointers2.Count);
+			IGenieDataElement.AssertTrue(TerrainRestrictionPointers1.Count == TerrainRestrictionPointers2.Count);
 			_buffer.WriteUShort((ushort)TerrainRestrictionPointers1.Count);
 			_buffer.WriteUShort((ushort)DataElements.TerrainRestriction.TerrainCount);
 
@@ -346,7 +346,7 @@ namespace GenieLibrary
 			GraphicPointers.ForEach(e => _buffer.WriteInteger(e));
 
 			// Grafiken schreiben Sicherstellen, dass genau jede definierte Grafik einen entsprechenden Pointer hat; hier nur über die Listenlänge, sollte aber die meisten auftretenden Fehler abdecken
-			AssertListLength(Graphics, GraphicPointers.Count(p => p != 0));
+			IGenieDataElement.AssertListLength(Graphics, GraphicPointers.Count(p => p != 0));
 			foreach(var e in Graphics)
 				e.Value.WriteData(_buffer);
 
@@ -379,7 +379,7 @@ namespace GenieLibrary
 			Researches.ForEach(e => e.WriteData(_buffer));
 
 			// Unbekannte Technologiebaum-Daten schreiben
-			AssertListLength(TechTreeUnknown, 7);
+			IGenieDataElement.AssertListLength(TechTreeUnknown, 7);
 			TechTreeUnknown.ForEach(e => _buffer.WriteInteger(e));
 
 			// Technologiebaum schreiben
@@ -387,7 +387,7 @@ namespace GenieLibrary
 			if(_newTechTree)
 			{
 				// Marker und neuen TechTree schreiben
-				_buffer.WriteString(NEW_TECH_TREE_VERSION_MARKER);
+				_buffer.WriteString(NEW_TECH_TREE_MARKER);
 				TechTreeNew.WriteData(_buffer);
 			}
 
@@ -426,7 +426,7 @@ namespace GenieLibrary
 		/// Geerbt. Schreibt die enthaltenen Daten an die gegebene Position im Puffer.
 		/// </summary>
 		/// <param name="buffer">Der Puffer, in den die Daten geschrieben werden sollen.</param>
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			// Puffer als internen Puffer speichern und Daten schreiben
 			_buffer = buffer;

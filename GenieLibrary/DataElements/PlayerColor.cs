@@ -20,7 +20,7 @@ namespace GenieLibrary.DataElements
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public PlayerColor ReadData(RAMBuffer buffer)
 		{
 			ID = buffer.ReadInteger();
 			Palette = buffer.ReadInteger();
@@ -31,9 +31,11 @@ namespace GenieLibrary.DataElements
 			Unknown3 = buffer.ReadInteger();
 			Unknown4 = buffer.ReadInteger();
 			StatisticsText = buffer.ReadInteger();
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			buffer.WriteInteger(ID);
 			buffer.WriteInteger(Palette);

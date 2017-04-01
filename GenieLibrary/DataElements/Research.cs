@@ -38,7 +38,7 @@ namespace GenieLibrary.DataElements
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public Research ReadData(RAMBuffer buffer)
 		{
 			RequiredTechs = new List<short>(6);
 			for(int i = 0; i < 6; ++i)
@@ -65,9 +65,11 @@ namespace GenieLibrary.DataElements
 
 			int nameLength = buffer.ReadUShort();
 			Name = buffer.ReadString(nameLength);
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			AssertListLength(RequiredTechs, 6);
 			RequiredTechs.ForEach(e => buffer.WriteShort(e));

@@ -16,7 +16,7 @@ namespace GenieLibrary.DataElements
 
 		#region Funktionen
 
-		public override void ReadData(RAMBuffer buffer)
+		public Sound ReadData(RAMBuffer buffer)
 		{
 			ID = buffer.ReadShort();
 			Unknown1 = buffer.ReadShort();
@@ -25,10 +25,12 @@ namespace GenieLibrary.DataElements
 
 			Items = new List<SoundItem>(count);
 			for(int i = 0; i < count; ++i)
-				Items.Add(new SoundItem().ReadDataInline(buffer));
+				Items.Add(new SoundItem().ReadData(buffer));
+
+			return this;
 		}
 
-		public override void WriteData(RAMBuffer buffer)
+		public void WriteData(RAMBuffer buffer)
 		{
 			buffer.WriteShort(ID);
 			buffer.WriteShort(Unknown1);
@@ -60,16 +62,18 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public override void ReadData(RAMBuffer buffer)
+			public SoundItem ReadData(RAMBuffer buffer)
 			{
 				FileName = buffer.ReadString(13);
 				ResourceID = buffer.ReadInteger();
 				Probability = buffer.ReadShort();
 				Civ = buffer.ReadShort();
 				Unknown1 = buffer.ReadShort();
+
+				return this;
 			}
 
-			public override void WriteData(RAMBuffer buffer)
+			public void WriteData(RAMBuffer buffer)
 			{
 				buffer.WriteString(FileName, 13);
 				buffer.WriteInteger(ResourceID);
