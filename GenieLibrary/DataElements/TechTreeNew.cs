@@ -397,7 +397,7 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public void ReadData(RAMBuffer buffer, byte version = NEW_TECH_TREE_VERSION)
+			public TechTreeDesign ReadData(RAMBuffer buffer, byte version = NEW_TECH_TREE_VERSION)
 			{
 				// SLP-Daten
 				NodeSlpFileName = buffer.ReadString(buffer.ReadInteger());
@@ -451,6 +451,8 @@ namespace GenieLibrary.DataElements
 					NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 2, Name = "Unit" });
 					NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 0, Name = "Building" });
 				}
+
+				return this;
 			}
 
 			public void WriteData(RAMBuffer buffer)
