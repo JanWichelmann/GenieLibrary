@@ -84,6 +84,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BalancingFile.cs" />
     <Compile Include="DataElements\Civ.cs" />
     <Compile Include="DataElements\Graphic.cs" />
     <Compile Include="DataElements\PlayerColor.cs" />
@@ -100,9 +101,12 @@
     <Compile Include="DataElements\UnitTypes\DeadFish.cs" />
     <Compile Include="DataElements\UnitTypes\Projectile.cs" />
     <Compile Include="DataElements\UnitTypes\Type50.cs" />
+    <Compile Include="DiffElementContainers.cs" />
+    <Compile Include="DiffElements.cs" />
     <Compile Include="GenieFile.cs" />
     <Compile Include="IGenieDataElement.cs" />
     <Compile Include="LanguageFileWrapper.cs" />
+    <Compile Include="MappingFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
