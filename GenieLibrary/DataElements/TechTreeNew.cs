@@ -397,7 +397,7 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public void ReadData(RAMBuffer buffer, byte version = NEW_TECH_TREE_VERSION)
+			public TechTreeDesign ReadData(RAMBuffer buffer, byte version = NEW_TECH_TREE_VERSION)
 			{
 				// Mit älteren Versionen lesen, falls Fehler auftreten
 				int bufferPos = buffer.Position;
@@ -459,7 +459,7 @@ namespace GenieLibrary.DataElements
 						}
 
 						// Erfolg, beenden
-						return;
+						return this;
 					}
 					catch(Exception)
 					{
