@@ -399,58 +399,77 @@ namespace GenieLibrary.DataElements
 
 			public void ReadData(RAMBuffer buffer, byte version = NEW_TECH_TREE_VERSION)
 			{
-				// SLP-Daten
-				NodeSlpFileName = buffer.ReadString(buffer.ReadInteger());
-				NodeSlpId = buffer.ReadInteger();
-				ScrollSlpFileName = buffer.ReadString(buffer.ReadInteger());
-				ScrollSlpId = buffer.ReadInteger();
-				TileSlpFileName = buffer.ReadString(buffer.ReadInteger());
-				TileSlpId = buffer.ReadInteger();
-				LegendAgesSlpFileName = buffer.ReadString(buffer.ReadInteger());
-				LegendAgesSlpId = buffer.ReadInteger();
-				LegendDisableSlpFileName = buffer.ReadString(buffer.ReadInteger());
-				LegendDisableSlpId = buffer.ReadInteger();
-
-				// Scroll-Daten
-				MouseScrollArea = buffer.ReadInteger();
-				MouseScrollDelay = buffer.ReadInteger();
-				MouseScrollOffset = buffer.ReadInteger();
-				KeyScrollOffset = buffer.ReadInteger();
-
-				// Button-Rechtecke
-				CloseButtonRelativeRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
-				ScrollLeftButtonRelativeRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
-				ScrollRightButtonRelativeRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
-
-				// Auflösungsdaten
-				int count = buffer.ReadInteger();
-				ResolutionData = new Dictionary<int, ResolutionConfiguration>();
-				for(int i = 0; i < count; ++i)
-					ResolutionData.Add(buffer.ReadInteger(), new ResolutionConfiguration().ReadData(buffer));
-
-				// Popup-Label-Daten
-				PopupLabelDelay = buffer.ReadInteger();
-				PopupLabelWidth = buffer.ReadInteger();
-				PopupInnerPadding = buffer.ReadInteger();
-				PopupBoxBevelColorIndices = new List<byte>(6);
-				for(int i = 0; i < 6; ++i)
-					PopupBoxBevelColorIndices.Add(buffer.ReadByte());
-
-				// Node-Daten
-				NodeFontIndex = buffer.ReadByte();
-				NodeBackgrounds = new List<NodeBackground>();
-				if(version >= 1)
+				// Mit älteren Versionen lesen, falls Fehler auftreten
+				int bufferPos = buffer.Position;
+				while(--version >= 0)
 				{
-					int nodeBackgroundCount = buffer.ReadInteger();
-					for(int i = 0; i < nodeBackgroundCount; i++)
-						NodeBackgrounds.Add(new NodeBackground().ReadData(buffer));
+					try
+					{
+						// SLP-Daten
+						NodeSlpFileName = buffer.ReadString(buffer.ReadInteger());
+						NodeSlpId = buffer.ReadInteger();
+						ScrollSlpFileName = buffer.ReadString(buffer.ReadInteger());
+						ScrollSlpId = buffer.ReadInteger();
+						TileSlpFileName = buffer.ReadString(buffer.ReadInteger());
+						TileSlpId = buffer.ReadInteger();
+						LegendAgesSlpFileName = buffer.ReadString(buffer.ReadInteger());
+						LegendAgesSlpId = buffer.ReadInteger();
+						LegendDisableSlpFileName = buffer.ReadString(buffer.ReadInteger());
+						LegendDisableSlpId = buffer.ReadInteger();
+
+						// Scroll-Daten
+						MouseScrollArea = buffer.ReadInteger();
+						MouseScrollDelay = buffer.ReadInteger();
+						MouseScrollOffset = buffer.ReadInteger();
+						KeyScrollOffset = buffer.ReadInteger();
+
+						// Button-Rechtecke
+						CloseButtonRelativeRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
+						ScrollLeftButtonRelativeRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
+						ScrollRightButtonRelativeRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
+
+						// Auflösungsdaten
+						int count = buffer.ReadInteger();
+						ResolutionData = new Dictionary<int, ResolutionConfiguration>();
+						for(int i = 0; i < count; ++i)
+							ResolutionData.Add(buffer.ReadInteger(), new ResolutionConfiguration().ReadData(buffer));
+
+						// Popup-Label-Daten
+						PopupLabelDelay = buffer.ReadInteger();
+						PopupLabelWidth = buffer.ReadInteger();
+						PopupInnerPadding = buffer.ReadInteger();
+						PopupBoxBevelColorIndices = new List<byte>(6);
+						for(int i = 0; i < 6; ++i)
+							PopupBoxBevelColorIndices.Add(buffer.ReadByte());
+
+						// Node-Daten
+						NodeFontIndex = buffer.ReadByte();
+						NodeBackgrounds = new List<NodeBackground>();
+						if(version >= 1)
+						{
+							int nodeBackgroundCount = buffer.ReadInteger();
+							for(int i = 0; i < nodeBackgroundCount; i++)
+								NodeBackgrounds.Add(new NodeBackground().ReadData(buffer));
+						}
+						else
+						{
+							NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 4, Name = "Research" });
+							NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 2, Name = "Unit" });
+							NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 0, Name = "Building" });
+						}
+
+						// Erfolg, beenden
+						return;
+					}
+					catch(Exception)
+					{
+						// Versuch mit kleinerer Version
+						buffer.Position = bufferPos;
+					}
 				}
-				else
-				{
-					NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 4, Name = "Research" });
-					NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 2, Name = "Unit" });
-					NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 0, Name = "Building" });
-				}
+
+				// Kein Durchlauf erfolgreich
+				throw new Exception("Unable to read design file.");
 			}
 
 			public void WriteData(RAMBuffer buffer)
