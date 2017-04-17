@@ -401,7 +401,7 @@ namespace GenieLibrary.DataElements
 			{
 				// Mit älteren Versionen lesen, falls Fehler auftreten
 				int bufferPos = buffer.Position;
-				while(--version >= 0)
+				while(version >= 0)
 				{
 					try
 					{
@@ -465,6 +465,7 @@ namespace GenieLibrary.DataElements
 					{
 						// Versuch mit kleinerer Version
 						buffer.Position = bufferPos;
+						--version;
 					}
 				}
 
