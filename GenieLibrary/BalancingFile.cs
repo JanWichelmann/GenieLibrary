@@ -98,13 +98,13 @@ namespace GenieLibrary
 						continue;
 
 					// Show only projectiles, living units and buildings
-					if(unitData.Value.Type <= Civ.Unit.UnitType.Projectile)
+					if(unitData.Value.Type < Civ.Unit.UnitType.Projectile)
 						continue;
 
 					// Create entry
 					UnitEntry ue = new UnitEntry();
 					ue.DisplayName = langFileWrapper.GetString(unitData.Value.LanguageDLLName);
-					if(string.IsNullOrEmpty(ue.DisplayName))
+					if(string.IsNullOrEmpty(ue.DisplayName) || unitData.Value.Type == Civ.Unit.UnitType.Projectile)
 						ue.DisplayName = unitData.Value.Name1.TrimEnd('\0');
 
 					// Get members
@@ -199,6 +199,10 @@ namespace GenieLibrary
 							unitData.Value.Creatable.ResourceCosts[2].Amount,
 							(byte)unitData.Value.Creatable.ResourceCosts[2].Paid
 						));
+
+					// Assign name of secondary projectile, if defined
+					if(unitData.Value.Creatable != null && c.Units.Keys.Contains(unitData.Value.Creatable.AlternativeProjectileUnit))
+						ue.SecondaryProjectileName = $"[{unitData.Value.Creatable.AlternativeProjectileUnit}] { c.Units[unitData.Value.Creatable.AlternativeProjectileUnit].Name1.TrimEnd('\0')}";
 
 					// Save unit entry
 					unitEntries[(short)unitData.Key] = ue;

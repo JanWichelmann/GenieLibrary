@@ -322,6 +322,7 @@ namespace GenieLibrary
 		public DiffElement<float> ProjectileSpawningAreaHeight { get; set; }
 		public DiffElement<float> ProjectileSpawningAreaRandomness { get; set; }
 
+
 		// Armor values
 		public AttackArmorEntryListDiffElement Armors { get; set; }
 		public DiffElement<short> DisplayedMeleeArmor { get; set; }
@@ -360,6 +361,11 @@ namespace GenieLibrary
 		/// The displayed name of the unit entry.
 		/// </summary>
 		public string DisplayName { get; set; }
+
+		/// <summary>
+		/// The displayed name of the unit entry's secondary projectile.
+		/// </summary>
+		public string SecondaryProjectileName { get; set; }
 
 		#endregion
 
