@@ -53,7 +53,7 @@ namespace GenieLibrary
 		{
 			public T Type;
 			public A Amount;
-			public E Paid;
+			public E Mode;
 		}
 
 		#endregion Strukturen
