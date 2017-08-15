@@ -39,7 +39,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 		{
 			ResourceCosts = new List<ResourceTuple<short, short, short>>(3);
 			for(int i = 0; i < 3; ++i)
-				ResourceCosts.Add(new ResourceTuple<short, short, short>() { Type = buffer.ReadShort(), Amount = buffer.ReadShort(), Paid = buffer.ReadShort() });
+				ResourceCosts.Add(new ResourceTuple<short, short, short>() { Type = buffer.ReadShort(), Amount = buffer.ReadShort(), Mode = buffer.ReadShort() });
 
 			TrainTime = buffer.ReadShort();
 			TrainLocationID = buffer.ReadShort();
@@ -69,7 +69,7 @@ namespace GenieLibrary.DataElements.UnitTypes
 			{
 				buffer.WriteShort(e.Type);
 				buffer.WriteShort(e.Amount);
-				buffer.WriteShort(e.Paid);
+				buffer.WriteShort(e.Mode);
 			});
 
 			buffer.WriteShort(TrainTime);

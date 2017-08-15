@@ -98,13 +98,13 @@ namespace GenieLibrary
 						continue;
 
 					// Show only projectiles, living units and buildings
-					if(unitData.Value.Type <= Civ.Unit.UnitType.Projectile)
+					if(unitData.Value.Type < Civ.Unit.UnitType.Projectile)
 						continue;
 
 					// Create entry
 					UnitEntry ue = new UnitEntry();
 					ue.DisplayName = langFileWrapper.GetString(unitData.Value.LanguageDLLName);
-					if(string.IsNullOrEmpty(ue.DisplayName))
+					if(string.IsNullOrEmpty(ue.DisplayName) || unitData.Value.Type == Civ.Unit.UnitType.Projectile)
 						ue.DisplayName = unitData.Value.Name1.TrimEnd('\0');
 
 					// Get members
@@ -183,22 +183,26 @@ namespace GenieLibrary
 						(
 							unitData.Value.Creatable.ResourceCosts[0].Type,
 							unitData.Value.Creatable.ResourceCosts[0].Amount,
-							(byte)unitData.Value.Creatable.ResourceCosts[0].Paid
+							(byte)unitData.Value.Creatable.ResourceCosts[0].Mode
 						));
 					if(unitData.Value.Creatable != null)
 						ue.Cost2 = new ResourceCostEntryDiffElement(ue, new ResourceCostEntry
 						(
 							unitData.Value.Creatable.ResourceCosts[1].Type,
 							unitData.Value.Creatable.ResourceCosts[1].Amount,
-							(byte)unitData.Value.Creatable.ResourceCosts[1].Paid
+							(byte)unitData.Value.Creatable.ResourceCosts[1].Mode
 						));
 					if(unitData.Value.Creatable != null)
 						ue.Cost3 = new ResourceCostEntryDiffElement(ue, new ResourceCostEntry
 						(
 							unitData.Value.Creatable.ResourceCosts[2].Type,
 							unitData.Value.Creatable.ResourceCosts[2].Amount,
-							(byte)unitData.Value.Creatable.ResourceCosts[2].Paid
+							(byte)unitData.Value.Creatable.ResourceCosts[2].Mode
 						));
+
+					// Assign name of secondary projectile, if defined
+					if(unitData.Value.Creatable != null && c.Units.Keys.Contains(unitData.Value.Creatable.AlternativeProjectileUnit))
+						ue.SecondaryProjectileName = $"[{unitData.Value.Creatable.AlternativeProjectileUnit}] { c.Units[unitData.Value.Creatable.AlternativeProjectileUnit].Name1.TrimEnd('\0')}";
 
 					// Save unit entry
 					unitEntries[(short)unitData.Key] = ue;
@@ -229,19 +233,19 @@ namespace GenieLibrary
 				(
 					researchData.ResourceCosts[0].Type,
 					researchData.ResourceCosts[0].Amount,
-					researchData.ResourceCosts[0].Paid
+					researchData.ResourceCosts[0].Mode
 				));
 				re.Cost2 = new ResourceCostEntryDiffElement(re, new ResourceCostEntry
 				(
 					researchData.ResourceCosts[1].Type,
 					researchData.ResourceCosts[1].Amount,
-					researchData.ResourceCosts[1].Paid
+					researchData.ResourceCosts[1].Mode
 				));
 				re.Cost3 = new ResourceCostEntryDiffElement(re, new ResourceCostEntry
 				(
 					researchData.ResourceCosts[2].Type,
 					researchData.ResourceCosts[2].Amount,
-					researchData.ResourceCosts[2].Paid
+					researchData.ResourceCosts[2].Mode
 				));
 
 				// Save research entry

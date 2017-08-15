@@ -322,6 +322,7 @@ namespace GenieLibrary
 		public DiffElement<float> ProjectileSpawningAreaHeight { get; set; }
 		public DiffElement<float> ProjectileSpawningAreaRandomness { get; set; }
 
+
 		// Armor values
 		public AttackArmorEntryListDiffElement Armors { get; set; }
 		public DiffElement<short> DisplayedMeleeArmor { get; set; }
@@ -360,6 +361,11 @@ namespace GenieLibrary
 		/// The displayed name of the unit entry.
 		/// </summary>
 		public string DisplayName { get; set; }
+
+		/// <summary>
+		/// The displayed name of the unit entry's secondary projectile.
+		/// </summary>
+		public string SecondaryProjectileName { get; set; }
 
 		#endregion
 
@@ -533,21 +539,21 @@ namespace GenieLibrary
 				unitData.Creatable.ResourceCosts[0] = new GenieLibrary.IGenieDataElement.ResourceTuple<short, short, short>
 				{
 					Amount = Cost1.Value.Amount,
-					Paid = Cost1.Value.Paid,
+					Mode = Cost1.Value.Paid,
 					Type = Cost1.Value.ResourceType
 				};
 			if(Cost2?.Modified ?? false)
 				unitData.Creatable.ResourceCosts[1] = new GenieLibrary.IGenieDataElement.ResourceTuple<short, short, short>
 				{
 					Amount = Cost2.Value.Amount,
-					Paid = Cost2.Value.Paid,
+					Mode = Cost2.Value.Paid,
 					Type = Cost2.Value.ResourceType
 				};
 			if(Cost3?.Modified ?? false)
 				unitData.Creatable.ResourceCosts[2] = new GenieLibrary.IGenieDataElement.ResourceTuple<short, short, short>
 				{
 					Amount = Cost3.Value.Amount,
-					Paid = Cost3.Value.Paid,
+					Mode = Cost3.Value.Paid,
 					Type = Cost3.Value.ResourceType
 				};
 		}
@@ -648,21 +654,21 @@ namespace GenieLibrary
 				researchData.ResourceCosts[0] = new GenieLibrary.IGenieDataElement.ResourceTuple<short, short, byte>
 				{
 					Amount = Cost1.Value.Amount,
-					Paid = Cost1.Value.Paid,
+					Mode = Cost1.Value.Paid,
 					Type = Cost1.Value.ResourceType
 				};
 			if(Cost2?.Modified ?? false)
 				researchData.ResourceCosts[1] = new GenieLibrary.IGenieDataElement.ResourceTuple<short, short, byte>
 				{
 					Amount = Cost2.Value.Amount,
-					Paid = Cost2.Value.Paid,
+					Mode = Cost2.Value.Paid,
 					Type = Cost2.Value.ResourceType
 				};
 			if(Cost3?.Modified ?? false)
 				researchData.ResourceCosts[2] = new GenieLibrary.IGenieDataElement.ResourceTuple<short, short, byte>
 				{
 					Amount = Cost3.Value.Amount,
-					Paid = Cost3.Value.Paid,
+					Mode = Cost3.Value.Paid,
 					Type = Cost3.Value.ResourceType
 				};
 		}
