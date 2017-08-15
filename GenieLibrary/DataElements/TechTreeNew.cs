@@ -65,7 +65,7 @@ namespace GenieLibrary.DataElements
 				// Nur wenn vorhanden, um Kompatibilität zu älteren Dateien zu erhalten
 				DesignData = new TechTreeDesign();
 				if(buffer.Position < buffer.Length)
-					DesignData.ReadData(buffer, version);
+					DesignData.ReadData(buffer);
 			}
 
 			return this;
@@ -142,7 +142,7 @@ namespace GenieLibrary.DataElements
 			/// <summary>
 			/// Der Index des Node-Hintergrunds.
 			/// </summary>
-			public int NodeBackgroundIndex;
+			public int NodeTypeIndex;
 
 			#endregion Variablen
 
@@ -176,9 +176,9 @@ namespace GenieLibrary.DataElements
 
 				// Node-Hintergrund lesen
 				if(version >= 1)
-					NodeBackgroundIndex = buffer.ReadInteger();
+					NodeTypeIndex = buffer.ReadInteger();
 				else
-					NodeBackgroundIndex = (int)ElementType;
+					NodeTypeIndex = (int)ElementType;
 
 				return this;
 			}
@@ -204,7 +204,7 @@ namespace GenieLibrary.DataElements
 				RequiredElements.ForEach(r => { buffer.WriteByte((byte)r.Item1); buffer.WriteShort(r.Item2); });
 
 				// Node-Hintergrund schreiben
-				buffer.WriteInteger(NodeBackgroundIndex);
+				buffer.WriteInteger(NodeTypeIndex);
 			}
 
 			#endregion Funktionen
@@ -242,6 +242,15 @@ namespace GenieLibrary.DataElements
 
 		public class TechTreeDesign
 		{
+			#region Konstanten
+
+			/// <summary>
+			/// Die aktuelle Version des TechTree-Design-Datenformats.
+			/// </summary>
+			private const byte NEW_TECH_TREE_DESIGN_VERSION = 1;
+
+			#endregion
+
 			#region Variablen
 
 			#region SLPs
@@ -389,7 +398,7 @@ namespace GenieLibrary.DataElements
 			/// Die Knotenhintergründe.
 			/// Enthält immer mindestens drei Elemente, deren Indizes zu den drei möglichen Elementtypen passen.
 			/// </summary>
-			public List<NodeBackground> NodeBackgrounds;
+			public List<NodeType> NodeTypes;
 
 			#endregion
 
@@ -397,84 +406,84 @@ namespace GenieLibrary.DataElements
 
 			#region Funktionen
 
-			public TechTreeDesign ReadData(RAMBuffer buffer, byte version = NEW_TECH_TREE_VERSION)
+			public TechTreeDesign ReadData(RAMBuffer buffer)
 			{
-				// Mit älteren Versionen lesen, falls Fehler auftreten
+				// Puffer-Position merken, um alte Dateien ohne Versionsmarker lesen zu können
 				int bufferPos = buffer.Position;
-				while(version >= 0)
+
+				// Versionsbyte lesen
+				byte version = buffer.ReadByte();
+				//if(version > NEW_TECH_TREE_VERSION)
+				//throw new Exception("This file was created with a newer version of this program. Please consider updating.");
+				if(version != NEW_TECH_TREE_DESIGN_VERSION)
 				{
-					try
-					{
-						// SLP-Daten
-						NodeSlpFileName = buffer.ReadString(buffer.ReadInteger());
-						NodeSlpId = buffer.ReadInteger();
-						ScrollSlpFileName = buffer.ReadString(buffer.ReadInteger());
-						ScrollSlpId = buffer.ReadInteger();
-						TileSlpFileName = buffer.ReadString(buffer.ReadInteger());
-						TileSlpId = buffer.ReadInteger();
-						LegendAgesSlpFileName = buffer.ReadString(buffer.ReadInteger());
-						LegendAgesSlpId = buffer.ReadInteger();
-						LegendDisableSlpFileName = buffer.ReadString(buffer.ReadInteger());
-						LegendDisableSlpId = buffer.ReadInteger();
-
-						// Scroll-Daten
-						MouseScrollArea = buffer.ReadInteger();
-						MouseScrollDelay = buffer.ReadInteger();
-						MouseScrollOffset = buffer.ReadInteger();
-						KeyScrollOffset = buffer.ReadInteger();
-
-						// Button-Rechtecke
-						CloseButtonRelativeRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
-						ScrollLeftButtonRelativeRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
-						ScrollRightButtonRelativeRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
-
-						// Auflösungsdaten
-						int count = buffer.ReadInteger();
-						ResolutionData = new Dictionary<int, ResolutionConfiguration>();
-						for(int i = 0; i < count; ++i)
-							ResolutionData.Add(buffer.ReadInteger(), new ResolutionConfiguration().ReadData(buffer));
-
-						// Popup-Label-Daten
-						PopupLabelDelay = buffer.ReadInteger();
-						PopupLabelWidth = buffer.ReadInteger();
-						PopupInnerPadding = buffer.ReadInteger();
-						PopupBoxBevelColorIndices = new List<byte>(6);
-						for(int i = 0; i < 6; ++i)
-							PopupBoxBevelColorIndices.Add(buffer.ReadByte());
-
-						// Node-Daten
-						NodeFontIndex = buffer.ReadByte();
-						NodeBackgrounds = new List<NodeBackground>();
-						if(version >= 1)
-						{
-							int nodeBackgroundCount = buffer.ReadInteger();
-							for(int i = 0; i < nodeBackgroundCount; i++)
-								NodeBackgrounds.Add(new NodeBackground().ReadData(buffer));
-						}
-						else
-						{
-							NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 4, Name = "Research" });
-							NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 2, Name = "Unit" });
-							NodeBackgrounds.Add(new NodeBackground() { FrameIndex = 0, Name = "Building" });
-						}
-
-						// Erfolg, beenden
-						return this;
-					}
-					catch(Exception)
-					{
-						// Versuch mit kleinerer Version
-						buffer.Position = bufferPos;
-						--version;
-					}
+					// Temporäres Fix, TODO später entfernen
+					version = 0;
+					buffer.Position = bufferPos;
 				}
 
-				// Kein Durchlauf erfolgreich
-				throw new Exception("Unable to read design file.");
+				// SLP-Daten
+				NodeSlpFileName = buffer.ReadString(buffer.ReadInteger());
+				NodeSlpId = buffer.ReadInteger();
+				ScrollSlpFileName = buffer.ReadString(buffer.ReadInteger());
+				ScrollSlpId = buffer.ReadInteger();
+				TileSlpFileName = buffer.ReadString(buffer.ReadInteger());
+				TileSlpId = buffer.ReadInteger();
+				LegendAgesSlpFileName = buffer.ReadString(buffer.ReadInteger());
+				LegendAgesSlpId = buffer.ReadInteger();
+				LegendDisableSlpFileName = buffer.ReadString(buffer.ReadInteger());
+				LegendDisableSlpId = buffer.ReadInteger();
+
+				// Scroll-Daten
+				MouseScrollArea = buffer.ReadInteger();
+				MouseScrollDelay = buffer.ReadInteger();
+				MouseScrollOffset = buffer.ReadInteger();
+				KeyScrollOffset = buffer.ReadInteger();
+
+				// Button-Rechtecke
+				CloseButtonRelativeRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
+				ScrollLeftButtonRelativeRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
+				ScrollRightButtonRelativeRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
+
+				// Auflösungsdaten
+				int count = buffer.ReadInteger();
+				ResolutionData = new Dictionary<int, ResolutionConfiguration>();
+				for(int i = 0; i < count; ++i)
+					ResolutionData.Add(buffer.ReadInteger(), new ResolutionConfiguration().ReadData(buffer, version));
+
+				// Popup-Label-Daten
+				PopupLabelDelay = buffer.ReadInteger();
+				PopupLabelWidth = buffer.ReadInteger();
+				PopupInnerPadding = buffer.ReadInteger();
+				PopupBoxBevelColorIndices = new List<byte>(6);
+				for(int i = 0; i < 6; ++i)
+					PopupBoxBevelColorIndices.Add(buffer.ReadByte());
+
+				// Node-Daten
+				NodeFontIndex = buffer.ReadByte();
+				NodeTypes = new List<NodeType>();
+				if(buffer.Position < buffer.Length) // TODO Temporäres Fix, später entfernen
+				{
+					int nodeTypesCount = buffer.ReadInteger();
+					for(int i = 0; i < nodeTypesCount; i++)
+						NodeTypes.Add(new NodeType().ReadData(buffer, version));
+				}
+				else
+				{
+					NodeTypes.Add(new NodeType() { FrameIndex = 4, Name = "Research", LegendLabelDllId = 20120 });
+					NodeTypes.Add(new NodeType() { FrameIndex = 2, Name = "Unit", LegendLabelDllId = 20121 });
+					NodeTypes.Add(new NodeType() { FrameIndex = 0, Name = "Building", LegendLabelDllId = 20122 });
+				}
+
+				// Erfolg, beenden
+				return this;
 			}
 
 			public void WriteData(RAMBuffer buffer)
 			{
+				// Version schreiben
+				buffer.WriteByte(NEW_TECH_TREE_DESIGN_VERSION);
+
 				// SLP-Daten
 				buffer.WriteInteger(NodeSlpFileName.Length);
 				buffer.WriteString(NodeSlpFileName);
@@ -522,9 +531,9 @@ namespace GenieLibrary.DataElements
 
 				// Node-Daten
 				buffer.WriteByte(NodeFontIndex);
-				IGenieDataElement.AssertTrue(NodeBackgrounds.Count >= 3);
-				buffer.WriteInteger(NodeBackgrounds.Count);
-				NodeBackgrounds.ForEach(n => n.WriteData(buffer));
+				IGenieDataElement.AssertTrue(NodeTypes.Count >= 3);
+				buffer.WriteInteger(NodeTypes.Count);
+				NodeTypes.ForEach(n => n.WriteData(buffer));
 			}
 
 			/// <summary>
@@ -585,9 +594,24 @@ namespace GenieLibrary.DataElements
 				public Rectangle CivSelectionTitleLabelRectangle;
 
 				/// <summary>
-				/// Die Rechtecke der Legenden-Label (6 Stück).
+				/// Das Rechteck des "Nicht entwickelt"-Legenden-Labels.
 				/// </summary>
-				public List<Rectangle> LegendLabelRectangles;
+				public Rectangle LegendNotResearchedLabelRectangle;
+
+				/// <summary>
+				/// Das Rechteck des "Entwickelt"-Legenden-Labels.
+				/// </summary>
+				public Rectangle LegendResearchedLabelRectangle;
+
+				/// <summary>
+				/// Die Rechtecke der Elementtypen-Legenden-Label (mindestens 3).
+				/// </summary>
+				public List<Rectangle> LegendNodeTypeLabelRectangles;
+
+				/// <summary>
+				/// Das Rechteck des "Nicht verfügbar"-Legenden-Labels.
+				/// </summary>
+				public Rectangle LegendDisabledLabelRectangle;
 
 				/// <summary>
 				/// Die linken Zeitalter-Beschriftungs-Rechtecke. Sollte geradzahlig sein (jeweils obere und untere Zeile aufeinanderfolgend).
@@ -605,7 +629,7 @@ namespace GenieLibrary.DataElements
 
 				#region Funktionen
 
-				public ResolutionConfiguration ReadData(RAMBuffer buffer)
+				public ResolutionConfiguration ReadData(RAMBuffer buffer, byte version)
 				{
 					LegendFrameIndex = buffer.ReadInteger();
 					AgeFrameIndex = buffer.ReadInteger();
@@ -615,9 +639,22 @@ namespace GenieLibrary.DataElements
 					CivSelectionComboBoxRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
 					CivSelectionTitleLabelRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
 
-					LegendLabelRectangles = new List<Rectangle>(6);
-					for(int i = 0; i < 6; ++i)
-						LegendLabelRectangles.Add(new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger()));
+					LegendNotResearchedLabelRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
+					LegendResearchedLabelRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
+					if(version >= 1)
+					{
+						int legendNodeTypeLabelRectangleCount = buffer.ReadInteger();
+						LegendNodeTypeLabelRectangles = new List<Rectangle>(legendNodeTypeLabelRectangleCount);
+						for(int i = 0; i < legendNodeTypeLabelRectangleCount; i++)
+							LegendNodeTypeLabelRectangles.Add(new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger()));
+					}
+					else
+					{
+						LegendNodeTypeLabelRectangles = new List<Rectangle>(3);
+						for(int i = 0; i < 3; ++i)
+							LegendNodeTypeLabelRectangles.Add(new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger()));
+					}
+					LegendDisabledLabelRectangle = new Rectangle(buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger(), buffer.ReadInteger());
 
 					int count = buffer.ReadInteger();
 					AgeLabelRectangles = new List<Rectangle>(count);
@@ -643,8 +680,12 @@ namespace GenieLibrary.DataElements
 					WriteRectangle(CivSelectionComboBoxRectangle, buffer);
 					WriteRectangle(CivSelectionTitleLabelRectangle, buffer);
 
-					IGenieDataElement.AssertListLength(LegendLabelRectangles, 6);
-					LegendLabelRectangles.ForEach(r => WriteRectangle(r, buffer));
+					WriteRectangle(LegendNotResearchedLabelRectangle, buffer);
+					WriteRectangle(LegendResearchedLabelRectangle, buffer);
+					IGenieDataElement.AssertTrue(LegendNodeTypeLabelRectangles.Count >= 3);
+					buffer.WriteInteger(LegendNodeTypeLabelRectangles.Count);
+					LegendNodeTypeLabelRectangles.ForEach(r => WriteRectangle(r, buffer));
+					WriteRectangle(LegendDisabledLabelRectangle, buffer);
 
 					IGenieDataElement.AssertTrue(AgeLabelRectangles.Count >= 3);
 					buffer.WriteInteger(AgeLabelRectangles.Count);
@@ -658,28 +699,36 @@ namespace GenieLibrary.DataElements
 				#endregion
 			}
 
-			public class NodeBackground
+			public class NodeType
 			{
 				#region Variablen
 
 				/// <summary>
-				/// The display name.
+				/// Der Anzeigename.
 				/// </summary>
 				public string Name;
 
 				/// <summary>
-				/// The node SLP frame index.
+				/// Der Frame-Index in der Node-SLP.
 				/// </summary>
 				public int FrameIndex;
+
+				/// <summary>
+				/// Die String-ID des Eintrags in der Legende.
+				/// </summary>
+				public int LegendLabelDllId;
 
 				#endregion
 
 				#region Funktionen
 
-				public NodeBackground ReadData(RAMBuffer buffer)
+				public NodeType ReadData(RAMBuffer buffer, byte version)
 				{
 					Name = buffer.ReadString(buffer.ReadInteger());
 					FrameIndex = buffer.ReadInteger();
+
+					if(version >= 1)
+						LegendLabelDllId = buffer.ReadInteger();
 
 					return this;
 				}
@@ -689,6 +738,7 @@ namespace GenieLibrary.DataElements
 					buffer.WriteInteger(Name.Length);
 					buffer.WriteString(Name);
 					buffer.WriteInteger(FrameIndex);
+					buffer.WriteInteger(LegendLabelDllId);
 				}
 
 				#endregion
