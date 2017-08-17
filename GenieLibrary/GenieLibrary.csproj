@@ -88,11 +88,13 @@
     <Compile Include="DataElements\Civ.cs" />
     <Compile Include="DataElements\Graphic.cs" />
     <Compile Include="DataElements\PlayerColor.cs" />
+    <Compile Include="DataElements\RandomMaps.cs" />
     <Compile Include="DataElements\Research.cs" />
     <Compile Include="DataElements\Sound.cs" />
     <Compile Include="DataElements\Techage.cs" />
     <Compile Include="DataElements\TechTree.cs" />
     <Compile Include="DataElements\TechTreeNew.cs" />
+    <Compile Include="DataElements\TerrainBlock.cs" />
     <Compile Include="DataElements\TerrainRestriction.cs" />
     <Compile Include="DataElements\UnitHeader.cs" />
     <Compile Include="DataElements\UnitTypes\Bird.cs" />

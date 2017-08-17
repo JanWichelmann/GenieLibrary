@@ -84,15 +84,20 @@ namespace GenieLibrary
 		/// </summary>
 		public Dictionary<int, DataElements.Graphic> Graphics;
 
-		/// <summary>
-		/// Ungenutzte Daten.
-		/// </summary>
-		public List<byte> Unused1;
+        /// <summary>
+        /// Terrain-Daten.
+        /// </summary>
+        public DataElements.TerrainBlock TerrainBlock;
 
-		/// <summary>
-		/// Die Technologie-Effekte.
-		/// </summary>
-		public List<DataElements.Techage> Techages;
+        /// <summary>
+        /// RandomMap-Daten.
+        /// </summary>
+        public DataElements.RandomMaps RandomMaps;
+
+        /// <summary>
+        /// Die Technologie-Effekte.
+        /// </summary>
+        public List<DataElements.Techage> Techages;
 
 		/// <summary>
 		/// Die Einheiten-Header.
@@ -177,7 +182,7 @@ namespace GenieLibrary
 			// Dateiversion lesen
 			string version = _buffer.ReadString(8);
 			if(version != "VER 5.7\0")
-				throw new InvalidDataException("Falsches Dateiformat oder falsche Dateiversion.");
+				throw new InvalidDataException("Invalid file format or wrong version.");
 
 			// Anzahlen lesen
 			ushort terrainRestrictionCount = _buffer.ReadUShort();
@@ -227,12 +232,11 @@ namespace GenieLibrary
 				if(GraphicPointers[p] != 0)
 					Graphics.Add(p, new DataElements.Graphic().ReadData(_buffer));
 
-			// Ungenutzte Daten lesen
-			// Diese Formel ist völlig beliebig und funktionierte bisher bei allen 41- und 42-Terrain-DATs. Vielleicht doch irgendwann noch durch eine richtige Implementierung ersetzen...
-			int unusedCount = 43420 + terrainCount * 264; //36368 + terrainCount * 436;
-			Unused1 = new List<byte>(unusedCount);
-			for(int i = 0; i < unusedCount; ++i)
-				Unused1.Add(_buffer.ReadByte());
+            // Terrain-Daten lesen
+            TerrainBlock = new DataElements.TerrainBlock().ReadData(_buffer);
+
+            // RandomMap-Daten lese
+            RandomMaps = new DataElements.RandomMaps().ReadData(_buffer);
 
 			// Anzahl lesen
 			int techageCount = _buffer.ReadInteger();
@@ -350,12 +354,14 @@ namespace GenieLibrary
 			foreach(var e in Graphics)
 				e.Value.WriteData(_buffer);
 
-			// Ungenutzte Daten schreiben
-			//AssertListLength(Unused1, 36368 + DataElements.TerrainRestriction.TerrainCount * 436);
-			Unused1.ForEach(e => _buffer.WriteByte(e));
+            // Terrain-Daten schreiben
+            TerrainBlock.WriteData(_buffer);
 
-			// Anzahl schreiben
-			_buffer.WriteInteger(Techages.Count);
+            // RandomMap-Daten schreiben
+            RandomMaps.WriteData(_buffer);
+
+            // Anzahl schreiben
+            _buffer.WriteInteger(Techages.Count);
 
 			// Technologie-Effekte schreiben
 			Techages.ForEach(e => e.WriteData(_buffer));
