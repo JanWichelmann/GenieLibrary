@@ -48,8 +48,6 @@ namespace GenieLibrary.DataElements
 		{
 			// Versionsbyte lesen
 			byte version = buffer.ReadByte();
-			if(version == (byte)'1')
-				version = 0; // Legacy, TODO in ein paar Monaten entfernen...
 			if(version > NEW_TECH_TREE_VERSION)
 				throw new Exception("This file was created with a newer version of this program. Please consider updating.");
 
@@ -61,12 +59,7 @@ namespace GenieLibrary.DataElements
 
 			// Design lesen
 			if(!readTreeOnly)
-			{
-				// Nur wenn vorhanden, um Kompatibilität zu älteren Dateien zu erhalten
-				DesignData = new TechTreeDesign();
-				if(buffer.Position < buffer.Length)
-					DesignData.ReadData(buffer);
-			}
+				DesignData = new TechTreeDesign().ReadData(buffer);
 
 			return this;
 		}
@@ -247,7 +240,7 @@ namespace GenieLibrary.DataElements
 			/// <summary>
 			/// Die aktuelle Version des TechTree-Design-Datenformats.
 			/// </summary>
-			private const byte NEW_TECH_TREE_DESIGN_VERSION = 1;
+			private const byte NEW_TECH_TREE_DESIGN_VERSION = 2;
 
 			#endregion
 
@@ -402,6 +395,25 @@ namespace GenieLibrary.DataElements
 
 			#endregion
 
+			#region Age-Labels
+
+			/// <summary>
+			/// Die Basis-DLL-ID der ersten Zeile.
+			/// </summary>
+			public int FirstLineBaseDllId;
+
+			/// <summary>
+			/// Die Basis-DLL-ID der zweiten Zeile.
+			/// </summary>
+			public int SecondLineDllId;
+
+			/// <summary>
+			/// Legt fest, ob auch in der zweiten Zeile für jedes Zeitalter die DLL-ID inkrementiert werden soll.
+			/// </summary>
+			public bool IncrementSecondLineDllId;
+
+			#endregion
+
 			#endregion
 
 			#region Funktionen
@@ -413,14 +425,8 @@ namespace GenieLibrary.DataElements
 
 				// Versionsbyte lesen
 				byte version = buffer.ReadByte();
-				//if(version > NEW_TECH_TREE_VERSION)
-				//throw new Exception("This file was created with a newer version of this program. Please consider updating.");
-				if(version != NEW_TECH_TREE_DESIGN_VERSION)
-				{
-					// Temporäres Fix, TODO später entfernen
-					version = 0;
-					buffer.Position = bufferPos;
-				}
+				if(version > NEW_TECH_TREE_DESIGN_VERSION)
+					throw new Exception("This file was created with a newer version of this program. Please consider updating.");
 
 				// SLP-Daten
 				NodeSlpFileName = buffer.ReadString(buffer.ReadInteger());
@@ -462,17 +468,22 @@ namespace GenieLibrary.DataElements
 				// Node-Daten
 				NodeFontIndex = buffer.ReadByte();
 				NodeTypes = new List<NodeType>();
-				if(buffer.Position < buffer.Length) // TODO Temporäres Fix, später entfernen
+				int nodeTypesCount = buffer.ReadInteger();
+				for(int i = 0; i < nodeTypesCount; i++)
+					NodeTypes.Add(new NodeType().ReadData(buffer, version));
+
+				// Age-Labels
+				if(version >= 2)
 				{
-					int nodeTypesCount = buffer.ReadInteger();
-					for(int i = 0; i < nodeTypesCount; i++)
-						NodeTypes.Add(new NodeType().ReadData(buffer, version));
+					FirstLineBaseDllId = buffer.ReadInteger();
+					SecondLineDllId = buffer.ReadInteger();
+					IncrementSecondLineDllId = buffer.ReadByte() > 0;
 				}
 				else
 				{
-					NodeTypes.Add(new NodeType() { FrameIndex = 4, Name = "Research", LegendLabelDllId = 20120 });
-					NodeTypes.Add(new NodeType() { FrameIndex = 2, Name = "Unit", LegendLabelDllId = 20121 });
-					NodeTypes.Add(new NodeType() { FrameIndex = 0, Name = "Building", LegendLabelDllId = 20122 });
+					FirstLineBaseDllId = 20110;
+					SecondLineDllId = 20114;
+					IncrementSecondLineDllId = false;
 				}
 
 				// Erfolg, beenden
@@ -534,6 +545,11 @@ namespace GenieLibrary.DataElements
 				IGenieDataElement.AssertTrue(NodeTypes.Count >= 3);
 				buffer.WriteInteger(NodeTypes.Count);
 				NodeTypes.ForEach(n => n.WriteData(buffer));
+
+				// Age-Labels
+				buffer.WriteInteger(FirstLineBaseDllId);
+				buffer.WriteInteger(SecondLineDllId);
+				buffer.WriteByte(IncrementSecondLineDllId ? (byte)1 : (byte)0);
 			}
 
 			/// <summary>
