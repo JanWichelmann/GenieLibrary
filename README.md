@@ -1,0 +1,3 @@
+This library allows reading and writing the main DAT file of *Age of Empires II: The Conquerors*, including the new tech tree section introduced with [AoETechTree](https://github.com/Janworks/AoETechTree).
+
+Lots of credit goes to the creators of the Advanced Genie Editor (http://aok.heavengames.com/blacksmith/showfile.php?fileid=11002) which source code I used to create this C# port of its [genieutils](https://github.com/Tapsa/genieutils) library.
