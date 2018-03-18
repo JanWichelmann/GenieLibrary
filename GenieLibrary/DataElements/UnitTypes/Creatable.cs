@@ -16,8 +16,8 @@ namespace GenieLibrary.DataElements.UnitTypes
 		public short TrainTime;
 		public short TrainLocationID;
 		public byte ButtonID;
-		public int Unknown26;
-		public int Unknown27;
+		public float Unknown26;
+		public float Unknown27;
 		public byte Unknown28;
 		public byte HeroMode;
 		public int GarrisonGraphic;
@@ -44,8 +44,8 @@ namespace GenieLibrary.DataElements.UnitTypes
 			TrainTime = buffer.ReadShort();
 			TrainLocationID = buffer.ReadShort();
 			ButtonID = buffer.ReadByte();
-			Unknown26 = buffer.ReadInteger();
-			Unknown27 = buffer.ReadInteger();
+			Unknown26 = buffer.ReadFloat();
+			Unknown27 = buffer.ReadFloat();
 			Unknown28 = buffer.ReadByte();
 			HeroMode = buffer.ReadByte();
 			GarrisonGraphic = buffer.ReadInteger();
@@ -75,8 +75,8 @@ namespace GenieLibrary.DataElements.UnitTypes
 			buffer.WriteShort(TrainTime);
 			buffer.WriteShort(TrainLocationID);
 			buffer.WriteByte(ButtonID);
-			buffer.WriteInteger(Unknown26);
-			buffer.WriteInteger(Unknown27);
+			buffer.WriteFloat(Unknown26);
+			buffer.WriteFloat(Unknown27);
 			buffer.WriteByte(Unknown28);
 			buffer.WriteByte(HeroMode);
 			buffer.WriteInteger(GarrisonGraphic);
